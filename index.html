@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793331'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793390'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -167,6 +167,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
   .route .jp{font-size:.74rem}
   .stop,.stop.fit,.stop.end,.stop.hero{display:grid;align-content:end;box-sizing:border-box;height:calc(100svh - var(--nav));min-height:0;padding-block:0 14px;scroll-margin-top:0;scroll-snap-align:start;scroll-snap-stop:always}
   .stop.hero{padding-bottom:52px}
+  .stop.end{padding-bottom:16svh}
   .stop>.card,.stop.wide>.card{min-width:0;max-width:none}
   .card,.stop.fit>.card{background:color-mix(in srgb,var(--paper) 86%,transparent);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);border-top-width:5px;padding:13px 16px 12px;gap:8px}
   .card h1{font-size:1.75rem}
