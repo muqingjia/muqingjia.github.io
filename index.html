@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793794042'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793794156'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -160,8 +160,6 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
   :root{--nav:92px}
   html{scroll-snap-type:y mandatory;scroll-padding-top:var(--nav);background:#6e5a58}
   body{background:#6e5a58}
-  .stop>.card{transition:opacity .2s}
-  .hop .stop>.card{opacity:0}
   nav{box-sizing:border-box;height:var(--nav)}
   /* the line map folds in two like a real one: MJ01-05 run right, turn at the end, MJ06-08 run back */
   .route{display:grid;grid-template-columns:repeat(100,1fr);grid-template-rows:34px 34px;row-gap:8px;padding:8px 0 5px;overflow:visible}
@@ -416,12 +414,15 @@ if(phone.matches){
     const mark=()=>{const g=slides[page()].dataset.g;[...dots.children].forEach((d,i)=>d.classList.toggle('on',groups[i]===g));if(onGroup)onGroup(+g);};
     deck.addEventListener('scroll',mark,{passive:true});mark();return {deck,page};
   };
-  // a tap jumps straight to its stop: snapping pauses, or iOS pulls the page back mid-jump
-  const root=document.documentElement,navBar=document.querySelector('nav');let snapT=0,hopT=0;
+  // a tap rides to its stop in one glide: snapping pauses, or iOS pulls the page back on the way
+  const root=document.documentElement,navBar=document.querySelector('nav');let snapT=0,glide=0;
+  const unsnap=()=>{cancelAnimationFrame(glide);clearTimeout(snapT);root.style.scrollSnapType='none';},resnap=()=>{snapT=setTimeout(()=>root.style.scrollSnapType='',200);};
   document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]'),el=a&&document.querySelector(a.getAttribute('href'));if(!el)return;
-    e.preventDefault();clearTimeout(hopT);clearTimeout(snapT);root.classList.add('hop');   // the card fades out before the jump and back in after it, so the jump itself is never seen
-    hopT=setTimeout(()=>{root.style.scrollSnapType='none';scrollTo(0,el.id==='top'?0:el.getBoundingClientRect().top+scrollY-navBar.offsetHeight);trackStop();
-      requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.remove('hop')));snapT=setTimeout(()=>root.style.scrollSnapType='',500);},reduce?0:180);});
+    e.preventDefault();unsnap();
+    const from=scrollY,to=el.id==='top'?0:el.getBoundingClientRect().top+from-navBar.offsetHeight,T=reduce?0:Math.min(450+Math.abs(to-from)*.12,1000),t0=performance.now();
+    const step=now=>{const k=T?Math.min(Math.max((now-t0)/T,0),1):1;scrollTo(0,from+(to-from)*k*k*(3-2*k));if(k<1)glide=requestAnimationFrame(step);else{trackStop();resnap();}};
+    glide=requestAnimationFrame(step);});
+  addEventListener('touchstart',()=>{if(root.style.scrollSnapType){cancelAnimationFrame(glide);clearTimeout(snapT);root.style.scrollSnapType='';}},{passive:true});
   const cardOf=id=>document.querySelector('#'+id+' .card');
   { // education: one school per slide
     const card=cardOf('education'),tl=card.querySelector('.tl');
