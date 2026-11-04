@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793965'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793794042'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -171,9 +171,9 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
   .route li:nth-child(3){grid-column:41/61}
   .route li:nth-child(4){grid-column:61/81}
   .route li:nth-child(5){grid-column:81/101}
-  .route li:nth-child(6){grid-area:2/66/3/92}
-  .route li:nth-child(7){grid-area:2/40/3/66}
-  .route li:nth-child(8){grid-area:2/14/3/40}
+  .route li:nth-child(6){grid-area:2/71/3/91}
+  .route li:nth-child(7){grid-area:2/49/3/71}
+  .route li:nth-child(8){grid-area:2/27/3/49}
   .route li::before{top:5px;height:4px}
   .route li:nth-child(5)::before{right:50%}
   .route li:last-child::before{left:50%;right:0}
