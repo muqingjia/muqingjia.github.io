@@ -415,6 +415,39 @@ function initTrain(){
   for(let i=0;i<10;i++){const g=new THREE.Group();for(let k=0;k<4;k++){const m=new THREE.Mesh(new THREE.IcosahedronGeometry(2+Math.random()*2,1),cloudM);m.position.set(k*2.6-4,Math.random()*1.2,Math.random()*2);m.scale.y=.5;g.add(m);}
     g.position.set(Math.random()*160-80,16+Math.random()*12,-80-Math.random()*30);g.userData.s=.3+Math.random()*.4;scene.add(g);clouds.push(g);}
 
+  /* ---------- Keio library: the Education stop, seen from the window ---------- */
+  const LMX=12.6, keio=new THREE.Group(); keio.position.set(LMX,-0.1,-8); keio.scale.setScalar(.76); keio.visible=false; scene.add(keio);
+  const lit=c=>outMat(c,{emissive:c,emissiveIntensity:.55});
+  const brick=lit(0xb8432f), brick2=lit(0xa63a2a), stone=lit(0xe6dccb), slate=lit(0x3d3b47), glass=lit(0x9db8c2), dark=lit(0x2b2730), lawn=lit(0x55704a), hedge=lit(0x3f5a3c);
+  const prism=(w,h,d,mat,x,y,z)=>{const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(0,h);sh.closePath();return put(new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false}),mat,x,y,z-d/2,keio,false);};
+  const arch=(w,h,mat,x,y,z)=>{const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(w/2,h-w/2);sh.absarc(0,h-w/2,w/2,0,Math.PI,false);sh.lineTo(-w/2,0);return put(new THREE.ShapeGeometry(sh,8),mat,x,y,z,keio,false);};
+  const win=(w,h,x,y,z)=>{arch(w+.09,h+.08,stone,x,y-.04,z);arch(w,h,glass,x,y,z+.006);box(.018,h*.8,.004,dark,x,y+h*.4,z+.012,keio,false);};
+  // roofs run along the wall, so the slate shows above the gables
+  const roof=(w,h,d,x,y,z)=>{const r=prism(d,h,w,slate,x,y,z);r.rotation.y=Math.PI/2;r.position.set(x-w/2,y,z);return r;};
+  // ground, lawn and hedge hide the base and the street behind
+  box(26,7,7,lawn,0,-3.5,1,keio,false); box(8.4,.16,.2,hedge,.3,.08,2.3,keio,false); box(2.4,.03,2,dark,-.1,.01,1.6,keio,false);
+  // main block and wings
+  box(2.7,2.05,1.1,brick,.3,1.02,0,keio,false); roof(2.7,.62,1.2,.3,2.05,0);
+  box(1.5,2.2,1.1,brick,-1.75,1.1,0,keio,false); prism(1.5,.82,1.12,brick2,-1.75,2.2,0); roof(1.5,.5,1.1,-1.75,2.2,-.25);
+  box(1,1.85,1,brick2,-3,.92,-.05,keio,false); prism(1.02,.66,1.02,brick2,-3,1.85,-.05); roof(1,.42,.9,-3,1.85,-.3);
+  prism(1.42,.94,.18,brick,-.2,2.05,.56); prism(1.54,1.02,.1,stone,-.2,2.02,.53); box(.34,.3,.02,stone,-.2,2.28,.66,keio,false);
+  box(4.1,.06,.03,stone,-.78,.48,.57,keio,false); box(5.4,.05,.03,stone,-.8,2.04,.57,keio,false);
+  // left wings: tall lancet windows and the clock
+  [-2.15,-1.75,-1.35].forEach(x=>{win(.27,.8,x,1.1,.555);box(.27,.07,.01,stone,x,.84,.555,keio,false);for(const y of [.14,.5])win(.22,.26,x,y,.555);});
+  put(new THREE.CircleGeometry(.16,14),stone,-1.75,2.46,.56,keio,false); put(new THREE.CircleGeometry(.11,12),dark,-1.75,2.46,.565,keio,false);
+  [-3.28,-3,-2.72].forEach(x=>{win(.17,.56,x,1.02,.455);win(.15,.3,x,.3,.455);});
+  // centre: entrance porch and paired arched windows, then the big hall windows
+  [-.5,.1].forEach(x=>win(.27,.84,x,1.05,.62)); box(1.04,1.05,.3,stone,-.2,.52,.68,keio,false); prism(1.2,.3,.32,stone,-.2,1.05,.68); arch(.56,.82,dark,-.2,0,.84); box(.86,.14,.04,brick2,-.2,1.18,.84,keio,false);
+  [.76,1.34].forEach(x=>{win(.36,1,x,.94,.555);win(.27,.46,x,.24,.555);});
+  // octagonal tower
+  const tower=new THREE.Group(); tower.position.set(2.65,0,.08); tower.rotation.y=Math.PI/8; keio.add(tower);
+  put(new THREE.CylinderGeometry(.84,.84,3.3,8),brick,0,1.65,0,tower,false);
+  [.06,1.1,1.92,2.55,3.3].forEach((y,i)=>put(new THREE.CylinderGeometry(i==4?.92:.87,i==4?.92:.87,i==4?.12:.07,8),stone,0,y,0,tower,false));
+  put(new THREE.CylinderGeometry(.5,.9,.34,8),slate,0,3.52,0,tower,false);
+  [2.25,3.04].forEach(x=>{win(.25,.72,x,2.02,.8);win(.21,.3,x,.42,.8);win(.21,.4,x,1.27,.8);});
+  // autumn trees either side
+  [[-4.3,.42,1.3,.62],[3.95,.5,1.2,.8],[4.75,.32,1.4,.7]].forEach(([x,y,z,r],i)=>{box(.1,.5,.1,dark,x,y-.2,z,keio,false);put(new THREE.IcosahedronGeometry(r,0),lit(i?0xd9a13b:0x8f9a4e),x,y+r*.72,z,keio,false);});
+
   /* ---------- lights ---------- */
   const hemi=new THREE.HemisphereLight(0xffe9d2,0x7d6a6a,0.62); scene.add(hemi);
   const amb=new THREE.AmbientLight(0xffe0c8,0.12); scene.add(amb);
@@ -752,14 +785,19 @@ function initTrain(){
 
   /* ---------- loop ---------- */
   let last=performance.now(),t=0,blinkAt=2.2,peckAt=2.5;
+  let go=1,lx=60;
   function frame(now){
     const dt=Math.min((now-last)/1000,0.05);last=now;t+=dt;const m=reduce?0.25:1;
     const docH=Math.max(document.documentElement.scrollHeight-innerHeight,1);setTime(Math.min(scrollY/docH,1));
-    for(let i=0;i<NB;i++){const b=bd[i];b.x-=b.s*dt*m;if(b.x<-65)b.x+=130;dummy.position.set(b.x,-6,b.z);dummy.scale.set(b.w,b.h,b.d);dummy.updateMatrix();city.setMatrixAt(i,dummy.matrix);}
+    // the train pulls in at Education: the city stops and the library slides into the window, then leaves to the left
+    const atSchool=activeId==='education',ease=Math.min(dt*1.5,1);go+=((atSchool?0:1)-go)*ease;const ms=m*go;
+    if(atSchool)lx+=(0-lx)*ease;else if(lx<60){lx-=22*dt*m;if(lx<-60)lx=60;}
+    keio.position.x=LMX+lx;keio.visible=lx<60;
+    for(let i=0;i<NB;i++){const b=bd[i];b.x-=b.s*dt*ms;if(b.x<-65)b.x+=130;dummy.position.set(b.x,-6,b.z);dummy.scale.set(b.w,b.h,b.d);dummy.updateMatrix();city.setMatrixAt(i,dummy.matrix);}
     city.instanceMatrix.needsUpdate=true;
-    for(let i=0;i<nd.length;i++){const b=nd[i];b.x-=b.s*dt*m;if(b.x<-45)b.x+=90;dummy.position.set(b.x,-6,b.z);dummy.scale.set(b.w,b.h,b.d);dummy.updateMatrix();near.setMatrixAt(i,dummy.matrix);}
+    for(let i=0;i<nd.length;i++){const b=nd[i];b.x-=b.s*dt*ms;if(b.x<-45)b.x+=90;dummy.position.set(b.x,-6,b.z);dummy.scale.set(b.w,b.h,b.d);dummy.updateMatrix();near.setMatrixAt(i,dummy.matrix);}
     near.instanceMatrix.needsUpdate=true;
-    poles.forEach(p=>{p.position.x-=22*dt*m;if(p.position.x<-36)p.position.x+=72;});
+    poles.forEach(p=>{p.position.x-=22*dt*ms;if(p.position.x<-36)p.position.x+=72;p.visible=go>.5||p.position.x<6||p.position.x>18;});
     clouds.forEach(c=>{c.position.x-=c.userData.s*dt*m;if(c.position.x<-90)c.position.x+=180;});
     car.rotation.z=Math.sin(t*1.25)*0.0022*m;car.position.y=Math.sin(t*8.5)*0.0018*m;
     straps.forEach(s=>{s.rotation.x=Math.sin(t*1.25+s.userData.ph)*0.11*m;});
@@ -785,7 +823,7 @@ function initTrain(){
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__train={camera,scene,ada,head};
+  window.__train={camera,scene,ada,head,keio};
 }
 
 if(typeof THREE!=='undefined'){ try{ initTrain(); }catch(e){ console.warn('train',e); } }
