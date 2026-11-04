@@ -815,10 +815,10 @@ function initTrain(){
             bench:{p:[9.4,0.49,1.03],ry:-2.3,foot:[9.4,0.5]},
             wave:{p:[9.29,STAND_Y,-0.245],ry:1.35,foot:[9.29,-0.245]}};
   const armPose=(lx_,ly,lz,rx,ry,rz)=>({alx:lx_,aly:ly,alz:lz,arx:rx,ary:ry,arz:rz});
-  const STAND={hipL:HALF,hipR:HALF,kneeL:-HALF,kneeR:-HALF,lean:0,side:0,twist:0,lap:0,leg:0,...armPose(0,0,-.14,0,0,.14)};
+  const STAND={hipL:HALF,hipR:HALF,kneeL:-HALF,kneeR:-HALF,lean:0,side:0,twist:0,lap:0,leg:0,plantL:0,plantR:0,...armPose(0,0,-.14,0,0,.14)};
   const sitArms=[arms[-1].sit,arms[1].sit];
   const POSE={bench:()=>{const k=Math.sin(t*15)*.05*calm;return {...POSE.rest(),lean:.06,...armPose(-1.02+k,0,.16,-1.02-k,0,-.16)};},rest:()=>({...POSE.sit(),...armPose(-.8,0,.08,-.8,0,-.08)}),sit:()=>({...STAND,hipL:0,hipR:0,kneeL:0,kneeR:0,lap:1,leg:1,...armPose(sitArms[0].x,sitArms[0].y,sitArms[0].z,sitArms[1].x,sitArms[1].y,sitArms[1].z)}),
-    kneel:()=>({...STAND,kneeL:0,kneeR:0,lean:.03+Math.sin(t*.8)*.012*calm,...armPose(-1.3,0,-.85,-1.75,0,.95)}),
+    kneel:()=>({...STAND,kneeL:0,kneeR:0,plantL:1,plantR:1,lean:.03+Math.sin(t*.8)*.012*calm,...armPose(-1.3,0,-.85,-1.75,0,.95)}),
     wave:()=>{const w=Math.sin(t*7.5)*calm;return {...STAND,side:.05+.03*w,lean:-.03,...armPose(0,0,-.14,-.12,0,2.45+.38*w)};},
     walk:()=>{const w=Math.sin(t*9.5),l=.46*w;return {...STAND,hipL:HALF+l,hipR:HALF-l,kneeL:-HALF+.6*Math.max(0,-w),kneeR:-HALF+.6*Math.max(0,w),lean:.05,...armPose(-l,0,-.14,l,0,.14)};},
     startle:()=>({...STAND,lean:-.1,...armPose(-.5,0,-1.15,-.5,0,1.15)})};
@@ -827,8 +827,8 @@ function initTrain(){
   const climbKeys=()=>{const k=SP.kneel,x=k.foot[0];return [
     {p:STAND,r:[x,STAND_Y,k.foot[1]]},                                                              // facing the window
     {p:{...STAND,lean:.28,...reach},r:[x,STAND_Y,-.7]},                                             // leans in, hands to the seat
-    {p:{...STAND,hipR:.55,kneeR:.92,hipL:1.95,kneeL:-1.3,lean:.42,...reach},r:[x,.58,-.82]},        // one knee up
-    {p:{...STAND,hipL:.7,hipR:.7,kneeL:.87,kneeR:.87,lean:.3,...reach},r:[x,.6,-1.0]},              // the other follows
+    {p:{...STAND,hipR:.55,kneeR:.92,plantR:1,hipL:1.95,kneeL:-1.3,lean:.42,...reach},r:[x,.63,-.8]},        // one knee up
+    {p:{...STAND,hipL:.7,hipR:.7,kneeL:.87,kneeR:.87,plantL:1,plantR:1,lean:.3,...reach},r:[x,.65,-1.0]},              // the other follows
     {p:POSE.kneel(),r:k.p}];};                                                                      // straightens up, hands to the frame
   // she is shorter than the seat, so she backs up to it, crouches, and hops on
   const seatKeys=k=>{const[fx,fz]=k.foot,at=f=>[fx+(k.p[0]-fx)*f,fz+(k.p[2]-fz)*f];const m=at(.55),h=at(.9);return [
@@ -838,8 +838,12 @@ function initTrain(){
     {p:POSE.rest(),r:k.p}];};
   // the Switch lives on its own: held in her hands, or set down on the seat at her right when she gets up
   const GRIP_POS=new V3(0,.12,.25), GRIP_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.28,0,0)),
-        SEAT_POS=new V3(CHAR_X-.34,.515,WZ+.5), SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,.35)),
+        SEAT_POS=new V3(CHAR_X-.3,.51,WZ+.52), SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,.35)),
         qA=new THREE.Quaternion(), qU=new THREE.Quaternion(), heldP=new V3(), HANDS_S=1.25;
+  const ease01=x=>x*x*(3-2*x), aimQ=new THREE.Quaternion(), poseQ=new THREE.Quaternion(), DOWN=new V3(0,-1,0), aimD=new V3(), aimT=new V3();
+  // turns an arm so the hand really reaches a point in the car, w blends it in
+  function aimArm(s,x,y,z,w){if(w<=0)return;const a=arms[s].g;aimT.set(x,y,z).sub(ada.position).applyQuaternion(qA.clone().invert()).applyQuaternion(qU.clone().invert());
+    aimD.set(aimT.x-s*.15,aimT.y-.28,aimT.z).normalize();aimQ.setFromUnitVectors(DOWN,aimD);poseQ.copy(a.quaternion).slerp(aimQ,w);a.quaternion.copy(poseQ);}
   function handsPose(c){const grip=POSE.sit(), rest=POSE.rest(), w=Math.sin(c*Math.PI), p={...rest};
     for(const n of ['alx','aly','alz','arx','ary','arz'])p[n]=grip[n]+(rest[n]-grip[n])*c;
     p.alx+=(0-p.alx)*w;p.aly+=(0-p.aly)*w;p.alz+=(-.66-p.alz)*w;   // right arm reaches down to the seat
@@ -847,18 +851,18 @@ function initTrain(){
   function placeSwitch(c){
     qA.setFromEuler(ada.rotation);qU.setFromEuler(upper.rotation);
     heldP.copy(GRIP_POS).applyQuaternion(qU).applyQuaternion(qA).add(ada.position);
-    const e=c*c*(3-2*c);gameG.position.lerpVectors(heldP,SEAT_POS,e);gameG.position.y+=Math.sin(e*Math.PI)*.05;
+    const e=ease01(Math.min(c/.75,1));gameG.position.lerpVectors(heldP,SEAT_POS,e);gameG.position.y+=Math.sin(e*Math.PI)*.05;
     gameG.quaternion.copy(qA).multiply(qU).multiply(GRIP_Q).slerp(SEAT_Q,e);}
   // the laptop has three places: 0 closed on the seat, .5 hugged closed while she carries it, 1 open on her lap
-  const MAC_SEAT=new V3(8.71,.516,1.12), MAC_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,.5,0)),
-        MAC_HELD=new V3(0,.2,.2), MAC_LAP=new V3(0,.085,.25), PICK_MAC=[8.71,.7], CARRY=armPose(-1.15,0,.22,-1.15,0,-.22), macP=new V3(), macQ=new THREE.Quaternion();
+  const MAC_SEAT=new V3(8.71,.498,1.12), MAC_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,.5,0)),
+        MAC_HELD=new V3(0,.2,.27), MAC_LAP=new V3(0,.068,.29), PICK_MAC=[8.71,.74], CARRY=armPose(-1.15,0,.22,-1.15,0,-.22), macP=new V3(), macQ=new THREE.Quaternion();
   function placeMac(c){
     qA.setFromEuler(ada.rotation);
-    const e=x=>x*x*(3-2*x), near=c<.5, a=e(near?c*2:(c-.5)*2);
+    const near=c<.5, a=ease01(near?Math.max((c*2-.25)/.75,0):(c-.5)*2);
     if(near){macP.copy(MAC_HELD).applyQuaternion(qA).add(ada.position);mac.position.lerpVectors(MAC_SEAT,macP,a);mac.position.y+=Math.sin(a*Math.PI)*.05;mac.quaternion.copy(MAC_SEAT_Q).slerp(qA,a);}
     else{mac.position.lerpVectors(macP.copy(MAC_HELD),MAC_LAP,a).applyQuaternion(qA).add(ada.position);mac.quaternion.copy(qA);}
     macLid.rotation.x=near?0:Math.max(a*2-1,0)*1.95;}
-  const pickPose=()=>{const w=Math.sin(Math.min(macC,.5)*2*Math.PI);return {...STAND,lean:.5*w,...armPose(-1.2,0,.14,-1.2,0,-.14)};};
+  const pickPose=()=>{const w=Math.pow(Math.sin(Math.min(macC*2,1)*Math.PI),.7);return {...STAND,lean:.72*w,hipL:HALF-.25*w,hipR:HALF-.25*w,kneeL:-HALF+.25*w,kneeR:-HALF+.25*w,...armPose(-1.2,0,.14,-1.2,0,-.14)};};
   const onSeat=()=>spot==='kneel'?climbKeys():seatKeys(SP[spot]);
   function climbAt(u){const K=onSeat(),n=K.length-1,f=Math.min(u*n,n-1e-6),i=Math.floor(f),e=f-i,w=e*e*(3-2*e),a=K[i],b=K[i+1],p={};
     for(const c in a.p)p[c]=a.p[c]+(b.p[c]-a.p[c])*w; return {p,r:a.r.map((v,j)=>v+(b.r[j]-v)*w)};}
@@ -890,8 +894,9 @@ function initTrain(){
       if(macC===macAim)phase='walk';
     }
     if(phase==='walk'){
-      const to=detour?PICK_MAC:gs.foot, dx=to[0]-root.x,dz=to[1]-root.z,d=Math.hypot(dx,dz),st=Math.min(d,1.6*hurry*dt);
+      const to=detour?PICK_MAC:gs.foot, dx=to[0]-root.x,dz=to[1]-root.z,d=Math.hypot(dx,dz);
       want=POSE.walk(); ryT=d>.01?Math.atan2(dx,dz):ry; rT=null;
+      const off=Math.abs(blendAngle(ry,ryT,1)-ry),st=Math.min(d,1.6*hurry*dt*Math.max(.12,Math.cos(Math.min(off,HALF))));
       root.x+=d?dx/d*st:0; root.z+=d?dz/d*st:0; root.y+=(STAND_Y+Math.abs(Math.sin(t*9.5))*.018-root.y)*Math.min(dt*9,1);
       if(d<.02){if(detour)phase='pick';else{spot=goal;phase=goal==='wave'?'settle':'climb';climb=0;}phT=0;}
     }
@@ -900,16 +905,25 @@ function initTrain(){
     if(scare>0)scare=Math.max(scare-dt,0);
     const k=Math.min(dt*(phase==='walk'?12:9),1); for(const n in pose)pose[n]+=(want[n]-pose[n])*k;
     if(rT)root.lerp(tP2.set(...rT),Math.min(dt*(phase==='climb'?12:6)*hurry,1));
-    ry=blendAngle(ry,ryT,Math.min(dt*8,1));
+    const turn=blendAngle(ry,ryT,1)-ry,maxTurn=dt*5*hurry; ry+=Math.max(-maxTurn,Math.min(maxTurn,turn*Math.min(dt*9,1)));
     const hop=scare>SCARE-.5?Math.sin((SCARE-scare)/.5*Math.PI)*.16:0;
-    ada.position.set(root.x,root.y+hop,root.z); ada.rotation.y=ry;
     upper.rotation.set(pose.lean,pose.twist,pose.side);
     // legs are long enough to dangle from the seat, and chibi short once she stands
-    const thighL=.15+.11*pose.leg, shinK=.72+.28*pose.leg;
-    for(const n of [-1,1]){const g=legs[n];g.thigh.scale.z=thighL/.26;g.thigh.position.z=thighL/2;g.knee.position.z=thighL;g.shin.scale.y=shinK;g.foot.position.y=-.285*shinK;}
+    const thighL=.15+.11*pose.leg, shinK=.72+.28*pose.leg; let lowest=9;
+    for(const n of [-1,1]){const g=legs[n],h=n<0?pose.hipL:pose.hipR,kn=n<0?pose.kneeL:pose.kneeR,pl=n<0?pose.plantL:pose.plantR,a=h+kn;
+      g.thigh.scale.z=thighL/.26;g.thigh.position.z=thighL/2;g.knee.position.z=thighL;g.shin.scale.y=shinK;g.foot.position.y=-.285*shinK;
+      const ank=pl*HALF+(1-pl)*-Math.max(-.7,Math.min(.7,a)); g.foot.rotation.x=ank;
+      const A=a+ank, y=-thighL*Math.sin(h)-.285*shinK*Math.cos(a);
+      lowest=Math.min(lowest,y-.042*Math.cos(A)-.125*Math.sin(A),y-.042*Math.cos(A)+.07*Math.sin(A));}
+    // never below the floor: the body rises just enough to keep both feet on it
+    const lift=Math.max(0,-(root.y+hop+lowest));
+    ada.position.set(root.x,root.y+hop+lift,root.z); ada.rotation.y=ry;
     legs[-1].hip.rotation.x=pose.hipL; legs[1].hip.rotation.x=pose.hipR; legs[-1].knee.rotation.x=pose.kneeL; legs[1].knee.rotation.x=pose.kneeR;
     arms[-1].g.rotation.set(pose.alx,pose.aly,pose.alz); arms[1].g.rotation.set(pose.arx,pose.ary,pose.arz);
     lap.visible=pose.lap>.5; lap.scale.z=Math.max(pose.lap,.01); placeSwitch(stow); placeMac(macC);
+    if(phase==='hands')aimArm(-1,gameG.position.x-.1*(1-stow),gameG.position.y,gameG.position.z,ease01(Math.min(stow*5,1))*ease01(Math.min((1-stow)*4,1)));
+    const holdMac=macC<=.5?ease01(Math.min(macC*8,1)):1-ease01(Math.min((macC-.5)*2.5,1));
+    for(const n of [-1,1]){aimT.set(n*.13,0,0).applyQuaternion(mac.quaternion).add(mac.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,holdMac);}
   }
   const tP2=new V3(), bubblePos=new V3(), bubble=document.getElementById('bubble');
   function placeBubble(){
