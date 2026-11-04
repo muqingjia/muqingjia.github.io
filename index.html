@@ -630,20 +630,21 @@ function initTrain(){
     grip(-0.086,gl); grip(0.086,gr);
     const scr=ctex(96,56,(g)=>{
       const poly=(c,p)=>{g.fillStyle=c;g.beginPath();p.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();};
-      const sky=g.createLinearGradient(0,0,96,18);sky.addColorStop(0,'#fff6c9');sky.addColorStop(.45,'#bfe9cf');sky.addColorStop(1,'#63c4cc');g.fillStyle=sky;g.fillRect(0,0,96,30);
-      g.fillStyle='#f4fbe6';g.fillRect(52,5,14,1);g.fillRect(48,6,10,1);g.fillRect(74,9,12,1);g.fillRect(70,10,9,1);
-      poly('#6f8fb8',[[0,27],[14,23],[26,14],[30,12],[34,15],[46,23],[60,21],[70,18],[78,21],[96,23],[96,32],[0,32]]);
-      poly('#e8eef2',[[27,14],[30,12],[33,14.5],[31,15],[30,14],[28,15]]);
-      poly('#8ba5c0',[[0,29],[22,26],[50,27],[76,24],[96,27],[96,33],[0,33]]);
-      g.fillStyle='#8fb24c';g.fillRect(0,31,96,25);
-      g.fillStyle='#a9c65a';g.fillRect(0,31,50,3);g.fillRect(58,33,38,2);g.fillStyle='#7ea146';g.fillRect(8,41,40,2);
-      g.fillStyle='#35663d';[[6,36,3],[11,35,4],[17,37,3],[24,35,3],[30,38,4],[37,36,3],[44,39,3],[12,42,4],[20,43,3],[28,44,4],[70,35,3],[76,36,4],[84,35,3],[90,37,3]].forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill();});
-      g.fillStyle='#4f8a48';[[10,34,2],[29,37,2],[75,35,2],[12,41,2]].forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill();});
-      poly('#c8e8e0',[[0,46],[9,47],[14,52],[12,56],[0,56]]);
-      poly('#d9a544',[[24,56],[46,46],[62,42],[76,44],[80,50],[72,56]]);
-      poly('#b98434',[[62,42],[76,44],[80,50],[72,56],[64,56],[68,48]]);
-      poly('#a7d84e',[[66,56],[76,47],[84,43],[96,41],[96,56]]);
-      g.fillStyle='#7fb83c';for(let x=68;x<96;x+=4)g.fillRect(x,52-(x%3),1,4);
+      const sky=g.createLinearGradient(0,0,0,30);sky.addColorStop(0,'#6fb4f0');sky.addColorStop(.55,'#b9cdf6');sky.addColorStop(1,'#ffc4dc');g.fillStyle=sky;g.fillRect(0,0,96,30);
+      g.fillStyle='#fff3f6';g.beginPath();g.arc(68,22,5,0,7);g.fill();
+      g.fillStyle='#ffe3ee';g.fillRect(52,8,14,1);g.fillRect(48,9,10,1);g.fillRect(14,6,12,1);g.fillRect(10,7,9,1);g.fillRect(76,13,12,1);
+      poly('#7f9be0',[[0,27],[14,23],[26,14],[30,12],[34,15],[46,23],[60,21],[70,18],[78,21],[96,23],[96,32],[0,32]]);
+      poly('#fdf3f8',[[27,14],[30,12],[33,14.5],[31,15],[30,14],[28,15]]);
+      poly('#a6b4ea',[[0,29],[22,26],[50,27],[76,24],[96,27],[96,33],[0,33]]);
+      g.fillStyle='#f4a9c8';g.fillRect(0,31,96,25);
+      g.fillStyle='#ffc6dc';g.fillRect(0,31,50,3);g.fillRect(58,33,38,2);g.fillStyle='#e58fb6';g.fillRect(8,41,40,2);
+      g.fillStyle='#4f74c8';[[6,36,3],[11,35,4],[17,37,3],[24,35,3],[30,38,4],[37,36,3],[44,39,3],[12,42,4],[20,43,3],[28,44,4],[70,35,3],[76,36,4],[84,35,3],[90,37,3]].forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill();});
+      g.fillStyle='#7ea2e6';[[10,34,2],[29,37,2],[75,35,2],[12,41,2]].forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill();});
+      poly('#d3e8ff',[[0,46],[9,47],[14,52],[12,56],[0,56]]);
+      poly('#ffdbe9',[[24,56],[46,46],[62,42],[76,44],[80,50],[72,56]]);
+      poly('#eea6c6',[[62,42],[76,44],[80,50],[72,56],[64,56],[68,48]]);
+      poly('#ffb3d0',[[66,56],[76,47],[84,43],[96,41],[96,56]]);
+      g.fillStyle='#e580ae';for(let x=68;x<96;x+=4)g.fillRect(x,52-(x%3),1,4);
       g.fillStyle='#f3ece2';g.fillRect(61,37,6,6);g.fillStyle='#1d1418';g.fillRect(61,34,6,6);g.fillRect(60,36,1,5);g.fillRect(67,36,1,5);
       g.fillStyle='#6b4f3f';g.fillRect(60,31,8,4);g.fillRect(60,29,2,2);g.fillRect(66,29,2,2);g.fillStyle='#d9b44a';g.fillRect(61,40,6,1);
       g.fillStyle='#3a3340';g.fillRect(58,43,5,1);g.fillRect(65,43,4,1);});
@@ -652,7 +653,7 @@ function initTrain(){
     stick(-0.088,0.018); stick(0.088,-0.016);
     [[0,0.009],[0.009,0],[0,-0.009],[-0.009,0]].forEach(([dx,dy])=>put(S(0.0045,6,4),L(0xfff8f2),0.088+dx,0.02+dy,0.013,gameG,false));
     box(0.018,0.006,0.004,knob,-0.088,-0.018,0.013,gameG,false); box(0.006,0.018,0.004,knob,-0.088,-0.018,0.013,gameG,false);
-    const glow=new THREE.PointLight(0xbfe6ff,0.35,0.5); glow.position.set(0,0,0.05); gameG.add(glow);
+    const glow=new THREE.PointLight(0xd8d4ff,0.35,0.5); glow.position.set(0,0,0.05); gameG.add(glow);
   }
   // laptop: waits closed on the far seat until she comes to work
   const mac=new THREE.Group(); car.add(mac);
