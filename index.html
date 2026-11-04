@@ -803,8 +803,8 @@ function initTrain(){
 
   /* ---------- loop ---------- */
   let last=performance.now(),t=0,blinkAt=2.2,peckAt=2.5;
-  let lx=60,nod=0,stop='away',gone=0;
-  const KEIO_V=.6, KEIO_START=4.2;
+  let lx=60,nod=0,stop='away',go=1,keioV=.8;
+  const KEIO_START=4.2, SETTLE=.8, KEIO_ETA={sit:6.5,bench:9.5,wave:7.6};   // seconds until Ada reaches the window
   /* ---------- Ada walks: one rig, a target pose per stop, and leave > walk > settle between them ---------- */
   const HALF=Math.PI/2, STAND_Y=0.385, SCARE=2.8, calm=reduce?.25:1;
   const SP={sit:{p:[CHAR_X,0.49,WZ+0.47],ry:-0.08,foot:[CHAR_X,-0.5]},
@@ -926,16 +926,19 @@ function initTrain(){
   function frame(now){
     const dt=Math.min((now-last)/1000,0.05);last=now;t+=dt;const m=reduce?0.25:1;
     const docH=Math.max(document.documentElement.scrollHeight-innerHeight,1);setTime(Math.min(scrollY/docH,1));
-    // the train never stops: the library drifts past at one steady speed, like the city behind it
-    const atSchool=activeId==='education', ms=m;
-    if(stop==='away'){if(atSchool){stop='pass';lx=KEIO_START;}}
-    else{lx-=KEIO_V*dt*m;if(atSchool)gone=0;else if((gone+=dt)>1.5){stop='away';lx=60;}}
+    // the library comes in at one steady speed, timed to reach the window as Ada does. The train halts while she looks, then pulls away
+    const atSchool=activeId==='education', atWindow=spot==='kneel'&&phase==='idle';
+    if(stop==='away'){go=Math.min(go+dt/SETTLE,1);if(atSchool){stop='pass';lx=KEIO_START;keioV=KEIO_START/(atWindow?2.5:phase==='idle'?KEIO_ETA[spot]||6:5);}}
+    else if(stop==='pass'){go=Math.min(go+dt/SETTLE,1);lx-=keioV*go*dt*m;if(!atSchool)stop='leave';else if(atWindow&&lx<=.5)stop='parked';}
+    else if(stop==='parked'){go=Math.max(go-dt/SETTLE,0);lx-=keioV*go*dt*m;if(!atSchool)stop='leave';}
+    else{go=Math.min(go+dt/SETTLE,1);lx-=keioV*go*dt*m;if(lx<-14){stop='away';lx=60;}}
+    const ms=m*go;
     keio.position.x=LMX+lx;keio.visible=lx<60;
     for(let i=0;i<NB;i++){const b=bd[i];b.x-=b.s*dt*ms;if(b.x<-65)b.x+=130;dummy.position.set(b.x,-6,b.z);dummy.scale.set(b.w,b.h,b.d);dummy.updateMatrix();city.setMatrixAt(i,dummy.matrix);}
     city.instanceMatrix.needsUpdate=true;
     for(let i=0;i<nd.length;i++){const b=nd[i];b.x-=b.s*dt*ms;if(b.x<-45)b.x+=90;dummy.position.set(b.x,-6,b.z);dummy.scale.set(b.w,b.h,b.d);dummy.updateMatrix();near.setMatrixAt(i,dummy.matrix);}
     near.instanceMatrix.needsUpdate=true;
-    poles.forEach(p=>{p.position.x-=22*dt*ms;if(p.position.x<-36)p.position.x+=72;});
+    poles.forEach(p=>{p.position.x-=22*dt*ms;if(p.position.x<-36)p.position.x+=72;p.visible=go>.5||p.position.x<6||p.position.x>18;});
     clouds.forEach(c=>{c.position.x-=c.userData.s*dt*m;if(c.position.x<-90)c.position.x+=180;});
     car.rotation.z=Math.sin(t*1.25)*0.0022*m;car.position.y=Math.sin(t*8.5)*0.0018*m;
     straps.forEach(s=>{s.rotation.x=Math.sin(t*1.25+s.userData.ph)*0.11*m;});
@@ -964,7 +967,7 @@ function initTrain(){
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__train={camera,scene,ada,head,keio,trainState:()=>({stop,lx}),adaState:()=>({spot,phase,climb,stow,macC})};
+  window.__train={camera,scene,ada,head,keio,trainState:()=>({stop,lx,go,keioV}),adaState:()=>({spot,phase,climb,stow,macC})};
 }
 
 if(typeof THREE!=='undefined'){ try{ initTrain(); }catch(e){ console.warn('train',e); } }
