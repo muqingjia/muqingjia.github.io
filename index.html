@@ -90,15 +90,8 @@ main{position:relative;z-index:1;pointer-events:none}
 .scrollhint i{font-style:normal;animation:hintpulse 1.8s ease-in-out infinite}
 @keyframes hintpulse{50%{opacity:.45}}
 @media (max-width:720px){.hero{align-content:end;padding-bottom:56px}.scrollhint{bottom:20px;font-size:.8rem}}
-.sign{position:relative;z-index:1;pointer-events:auto;max-width:540px;background:var(--paper);border-radius:12px;box-shadow:0 18px 50px -20px rgba(39,36,58,.5);overflow:hidden}
-.sign .top{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;padding:22px 24px 16px}
-.badge{width:64px;height:64px;border:5px solid var(--line);border-radius:12px;display:grid;place-content:center;text-align:center;font-family:var(--display);font-weight:700;line-height:1;color:var(--ink)}
-.badge small{display:block;font-size:.72rem;color:var(--line);letter-spacing:.08em}
-.badge span{font-size:1.5rem}
-.sign h1{font-size:clamp(1.9rem,4.4vw,2.5rem);line-height:1.1}
-.sign .stripe{height:12px;background:var(--line)}
-.sign .lede{padding:16px 24px 4px;font-size:1.05rem}
-.sign .foot{padding:12px 24px 20px;display:grid;gap:12px}
+.card h1{font-size:clamp(2rem,4.6vw,2.7rem);line-height:1.12}
+.lede{font-size:1.05rem}
 .hint{font-family:var(--pixel);font-size:.82rem;color:var(--line);letter-spacing:.04em}
 
 /* timeline */
@@ -162,18 +155,11 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
 <main>
   <header class="stop hero" id="top" data-stop="MJ01 MUQING JIA">
-    <div class="sign">
-      <div class="top">
-        <div class="badge"><small>MJ</small><span>01</span></div>
-        <div>
-          <h1>Muqing (Ada) Jia</h1>
-        </div>
-      </div>
-      <div class="stripe"></div>
+    <div class="card">
+      <span class="led"><i>始発</i> FIRST STOP · MJ01 START</span>
+      <h1>Muqing (Ada) Jia</h1>
       <p class="lede">Media Designer at the <a class="hl" href="https://www.embodiedmedia.org/" target="_blank" rel="noopener">Embodied Media</a> Project, Keio University Graduate School of Media Design. I explore the possibilities of interaction through technology, <span class="hl">immersive environments</span>, and <span class="hl">human-centered experiences</span>.</p>
-      <div class="foot">
-        <div class="chips"><span class="chip">Interaction Design</span><span class="chip">XR &amp; Immersive Experiences</span><span class="chip">Creative Technology</span><span class="chip">AI &amp; 3D</span></div>
-      </div>
+      <div class="chips"><span class="chip">Interaction Design</span><span class="chip">XR &amp; Immersive Experiences</span><span class="chip">Creative Technology</span></div>
     </div>
     <span class="scrollhint"><i>▼</i> Scroll to ride the line</span>
   </header>
