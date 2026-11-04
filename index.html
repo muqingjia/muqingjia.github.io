@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793794400'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793795908'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -108,18 +108,18 @@ main{position:relative;z-index:1;pointer-events:none}
 .card h1{font-size:clamp(2rem,4.6vw,2.7rem);line-height:1.12}
 #top{scroll-margin-top:100vh}
 .lede{font-size:1.05rem}
-.hint{font-family:var(--pixel);font-size:.82rem;color:var(--line);letter-spacing:.04em}
+.hint{font-family:var(--display);font-weight:700;font-size:.76rem;color:var(--line);letter-spacing:.05em}
 
 /* timeline */
 .tl{display:grid;gap:16px}
 .tl-item{display:grid;gap:4px;border-left:4px solid var(--line);padding-left:14px}
-.tl-item .when{font-family:var(--pixel);font-size:.82rem;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.04em}
+.tl-item .when{font-family:var(--body);font-size:.84rem;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 .tl-item h3{font-size:1.25rem;line-height:1.3}
 .tl-item .sub{color:var(--line);font-weight:500;font-size:.93rem}
 .tl-item ul{margin:4px 0 0;padding-left:1.1em}
 .tl-item li{margin-bottom:4px}
 .tl-item li::marker{color:var(--pink)}
-.tl-item h4{font-family:var(--pixel);font-weight:400;font-size:.8rem;letter-spacing:.06em;color:var(--muted);margin:10px 0 0}
+.tl-item h4{font-family:var(--display);font-weight:700;font-size:.76rem;letter-spacing:.05em;color:var(--muted);margin:10px 0 0}
 .nowtag{font-family:var(--pixel);font-size:.7rem;background:var(--pink);color:#fff;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
 
 /* works */
@@ -128,7 +128,7 @@ main{position:relative;z-index:1;pointer-events:none}
 .work.on{visibility:visible}
 .work-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
 .work-head h3{font-size:1.5rem}
-.work-head .yr{font-family:var(--pixel);color:var(--muted)}
+.work-head .yr{font-family:var(--body);color:var(--muted);font-variant-numeric:tabular-nums}
 .role{color:var(--line);font-weight:500}
 .note{font-size:.9rem;color:var(--muted);border-left:3px solid var(--pink);padding-left:10px}
 .ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -152,7 +152,7 @@ main{position:relative;z-index:1;pointer-events:none}
 .sub-card{border-top:1px dashed var(--rule);padding-top:14px;display:grid;gap:10px}
 
 .skillgrp{display:grid;gap:6px}
-.skillgrp b{font-family:var(--pixel);font-weight:400;font-size:.8rem;color:var(--muted)}
+.skillgrp b{font-family:var(--display);font-weight:700;font-size:.76rem;letter-spacing:.05em;color:var(--muted)}
 
 .email{font-family:var(--display);font-weight:700;font-size:clamp(1.2rem,4.4vw,1.8rem);word-break:break-all}
 footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font-family:var(--pixel);font-size:.8rem;color:#e8e6e3;text-shadow:0 1px 4px rgba(39,36,58,.5);pointer-events:none}
@@ -307,7 +307,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
   <section class="stop wide fit research" id="research" data-stop="MJ06 RESEARCH">
     <div class="card">
       <span class="led"><i>ただいま</i> MJ06 RESEARCH</span>
-      <h2>Research directions</h2>
+      <h2>Research interests</h2>
       <div style="display:grid;gap:10px">
         <span class="hint">SERVICE DESIGN</span>
         <h3>Adaptive Design for Aging</h3>
