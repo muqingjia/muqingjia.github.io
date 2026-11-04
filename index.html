@@ -660,7 +660,7 @@ function initTrain(){
     g.clearRect(0,0,96,64);
     const eye=(cx,flip)=>{
       if(mode==='closed'){g.fillStyle='#2a1d22';g.fillRect(cx-8,37,16,2);g.fillRect(cx-9+(flip?14:0),36,4,2);return;}
-      if(mode==='happy'){g.fillStyle='#2a1d22';for(let i=0;i<6;i++){const x=flip?cx-2-i:cx+i;g.fillRect(x,33+i,3,3);g.fillRect(x,45-i,3,3);} return;}
+      if(mode==='happy'){g.fillStyle='#2a1d22';for(let i=0;i<6;i++){const x=flip?cx-i:cx-3+i;g.fillRect(x,33+i,3,3);g.fillRect(x,45-i,3,3);} return;}
       g.fillStyle='#f3e6e8';g.fillRect(cx-10,33,20,14);                // sclera
       g.fillStyle='#3a2730';g.fillRect(cx-8,31,16,17);                 // iris
       g.fillStyle='#5e3f48';g.fillRect(cx-6,39,12,8);
