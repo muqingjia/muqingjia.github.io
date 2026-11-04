@@ -616,6 +616,7 @@ function initTrain(){
     const a=new THREE.Group(); a.position.copy(sh); a.quaternion.setFromUnitVectors(new V3(0,-1,0),dir.normalize()); upper.add(a); arms[s]={g:a,sit:new THREE.Euler().setFromQuaternion(a.quaternion)};
     put(C(0.044,0.066,len*0.8,8),shirtM,0,-len*0.4,0,a);
     put(new THREE.TorusGeometry(0.042,0.014,6,12),shirtM,0,-len*0.8,0,a).rotation.x=Math.PI/2;
+    put(C(0.021,0.024,len*0.26,7),skinM,0,-len*0.88,0,a);   // wrist bridges the cuff and the hand
     put(S(0.03,7,6),skinM,0,-len+0.005,0,a);
     if(s>0) put(new THREE.TorusGeometry(0.03,0.004,4,12),L(0x3a3340),0,-len*0.86,0,a).rotation.x=Math.PI/2;
   }
