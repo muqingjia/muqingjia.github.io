@@ -90,9 +90,6 @@ main{position:relative;z-index:1;pointer-events:none}
 /* hero: station sign */
 .hero{box-sizing:border-box;min-height:calc(100svh - var(--nav));display:grid;align-content:center;padding-block:40px 84px}
 .scrollhint{position:fixed;left:50%;bottom:clamp(20px,8vh,76px);transform:translateX(-50%);white-space:nowrap;font-family:var(--pixel);font-size:.9rem;letter-spacing:.06em;color:#fff6e4;text-shadow:0 1px 6px rgba(39,36,58,.75)}
-.bubble{position:fixed;left:0;top:0;z-index:1;pointer-events:none;white-space:nowrap;background:var(--paper);color:var(--ink);font-family:var(--display);font-weight:700;font-size:.92rem;line-height:1.3;padding:8px 14px;border-radius:14px;box-shadow:0 10px 24px -14px rgba(39,36,58,.6);opacity:0;transition:opacity .35s}
-.bubble::after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-8px;border:8px solid transparent;border-top-color:var(--paper);border-bottom:0}
-.bubble.on{opacity:1}
 .scrollhint i{font-style:normal;animation:hintpulse 1.8s ease-in-out infinite}
 @keyframes hintpulse{50%{opacity:.45}}
 @media (max-width:720px){.hero{align-content:end;padding-bottom:56px}.scrollhint{bottom:20px;font-size:.8rem}}
@@ -151,7 +148,6 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
-<div class="bubble" id="bubble">I'm looking for an internship</div>
 
 <nav aria-label="Stops">
   <div class="in">
@@ -925,14 +921,7 @@ function initTrain(){
     const holdMac=macC<=.5?ease01(Math.min(macC*8,1)):1-ease01(Math.min((macC-.5)*2.5,1));
     for(const n of [-1,1]){aimT.set(n*.13,0,0).applyQuaternion(mac.quaternion).add(mac.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,holdMac);}
   }
-  const tP2=new V3(), bubblePos=new V3(), bubble=document.getElementById('bubble');
-  function placeBubble(){
-    const on=activeId==='top'&&spot==='sit'&&phase==='idle'; bubble.classList.toggle('on',on); if(!on)return;
-    head.getWorldPosition(bubblePos); bubblePos.y+=.46; bubblePos.project(camera);
-    const hw=bubble.offsetWidth/2+10, hh=bubble.offsetHeight+22, navH=document.querySelector('nav').offsetHeight;
-    const x=Math.min(Math.max((bubblePos.x+1)/2*W,hw),W-hw), y=Math.max((1-bubblePos.y)/2*H,navH+hh);
-    bubble.style.transform=`translate(${x}px,${y}px) translate(-50%,-100%)`;
-  }
+  const tP2=new V3();
   function frame(now){
     const dt=Math.min((now-last)/1000,0.05);last=now;t+=dt;const m=reduce?0.25:1;
     const docH=Math.max(document.documentElement.scrollHeight-innerHeight,1);setTime(Math.min(scrollY/docH,1));
@@ -967,7 +956,6 @@ function initTrain(){
     target();const k=Math.min(dt*(reduce?8:2.2)*(1+camP.distanceTo(tP)/3),1);camP.lerp(tP,k);camL.lerp(tL,k);postU.focus.value+=(tF-postU.focus.value)*k;
     camera.position.copy(camP);camera.position.y+=Math.sin(t*8.5)*0.0015*m;camera.lookAt(camL);
     if(!mobile){lens+=(tO-lens)*k;camera.setViewOffset(W,H,-lens,0,W,H);camera.updateProjectionMatrix();}
-    placeBubble();
     sun.target.position.set(camL.x,0.5,0);sun.position.copy(sun.target.position).addScaledVector(skyU.sunDir.value,25);
     postU.time.value=t;
     renderer.setRenderTarget(rt);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCam);
