@@ -812,24 +812,38 @@ function initTrain(){
     stretch:()=>{const sw=Math.sin(t*1.5)*calm,tw=Math.sin(t*.75)*calm;return {...STAND,side:-.2*sw,twist:.22*tw,lean:-.04,...armPose(-.15,0,-2.3+.4*sw,-.15,0,2.3+.4*sw)};},
     walk:()=>{const w=Math.sin(t*9.5),l=.46*w;return {...STAND,hipL:HALF+l,hipR:HALF-l,kneeL:-HALF+.6*Math.max(0,-w),kneeR:-HALF+.6*Math.max(0,w),lean:.05,...armPose(-l,0,-.14,l,0,.14)};},
     startle:()=>({...STAND,lean:-.1,...armPose(-.5,0,-1.15,-.5,0,1.15)})};
-  const pose=POSE.sit(), root=new V3(...SP.sit.p); let ry=SP.sit.ry, spot='sit', phase='idle', phT=0, scare=0;
+  // climbing onto the seat, played forwards to get up and backwards to get down
+  const CLIMB_S=2.6, reach=armPose(-1.05,0,-.22,-1.05,0,.22);
+  const climbKeys=()=>{const k=SP.kneel,x=k.foot[0];return [
+    {p:STAND,r:[x,STAND_Y,k.foot[1]]},                                                              // facing the window
+    {p:{...STAND,lean:.28,...reach},r:[x,STAND_Y,-.7]},                                             // leans in, hands to the seat
+    {p:{...STAND,hipR:.55,kneeR:.92,hipL:1.95,kneeL:-1.3,lean:.42,...reach},r:[x,.58,-.82]},        // one knee up
+    {p:{...STAND,hipL:.7,hipR:.7,kneeL:.87,kneeR:.87,lean:.3,...reach},r:[x,.6,-1.0]},              // the other follows
+    {p:POSE.kneel(),r:k.p}];};                                                                      // straightens up, hands to the frame
+  function climbAt(u){const K=climbKeys(),n=K.length-1,f=Math.min(u*n,n-1e-6),i=Math.floor(f),e=f-i,w=e*e*(3-2*e),a=K[i],b=K[i+1],p={};
+    for(const c in a.p)p[c]=a.p[c]+(b.p[c]-a.p[c])*w; return {p,r:a.r.map((v,j)=>v+(b.r[j]-v)*w)};}
+  const pose=POSE.sit(), root=new V3(...SP.sit.p); let ry=SP.sit.ry, spot='sit', phase='idle', phT=0, scare=0, climb=0;
   const blendAngle=(a,b,k)=>a+(((b-a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI)*k;
   function moveAda(dt){
     const goal=activeId==='education'?'kneel':activeId==='experience'?'stretch':'sit', hurry=reduce?4:1; phT+=dt;
-    if(phase==='idle'&&goal!==spot){phase='leave';phT=0;scare=0;}
+    if(phase==='idle'&&goal!==spot){phase=spot==='kneel'?'climb':'leave';phT=0;scare=0;}
     if(phase==='leave'&&phT>.5/hurry)phase='walk';
     const here=SP[spot], gs=SP[goal]; let want=POSE[spot](), rT=here.p, ryT=here.ry;
     if(phase==='leave'){want=STAND;rT=[here.foot[0],STAND_Y,here.foot[1]];}
+    if(phase==='climb'){
+      climb=Math.min(Math.max(climb+(goal==='kneel'?1:-1)*dt*hurry/CLIMB_S,0),1); const c=climbAt(climb); want=c.p; rT=c.r; ryT=SP.kneel.ry;
+      if(climb===1)phase='idle'; else if(climb===0)phase='walk';
+    }
     if(phase==='walk'){
       const dx=gs.foot[0]-root.x,dz=gs.foot[1]-root.z,d=Math.hypot(dx,dz),st=Math.min(d,1.6*hurry*dt);
       want=POSE.walk(); ryT=d>.01?Math.atan2(dx,dz):ry; rT=null;
       root.x+=d?dx/d*st:0; root.z+=d?dz/d*st:0; root.y+=(STAND_Y+Math.abs(Math.sin(t*9.5))*.018-root.y)*Math.min(dt*9,1);
-      if(d<.02){spot=goal;phase='settle';phT=0;}
+      if(d<.02){spot=goal;phase=goal==='kneel'?'climb':'settle';phT=0;}
     }
     if(phase==='settle'&&phT>.6/hurry)phase='idle';
     if(scare>0){scare=Math.max(scare-dt,0);if(scare>SCARE-.5)want=POSE.startle();else want=STAND;}
     const k=Math.min(dt*(phase==='walk'?12:9),1); for(const n in pose)pose[n]+=(want[n]-pose[n])*k;
-    if(rT)root.lerp(tP2.set(...rT),Math.min(dt*6*hurry,1));
+    if(rT)root.lerp(tP2.set(...rT),Math.min(dt*(phase==='climb'?12:6)*hurry,1));
     ry=blendAngle(ry,ryT,Math.min(dt*8,1));
     const hop=scare>SCARE-.5?Math.sin((SCARE-scare)/.5*Math.PI)*.16:0;
     ada.position.set(root.x,root.y+hop,root.z); ada.rotation.y=ry;
@@ -889,7 +903,7 @@ function initTrain(){
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__train={camera,scene,ada,head,keio,adaState:()=>({spot,phase})};
+  window.__train={camera,scene,ada,head,keio,adaState:()=>({spot,phase,climb})};
 }
 
 if(typeof THREE!=='undefined'){ try{ initTrain(); }catch(e){ console.warn('train',e); } }
