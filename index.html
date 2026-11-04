@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793555'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793756'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -157,12 +157,28 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 .end{padding-bottom:32vh}
 /* phone: one stop per screen, the scene on top and a short card below; long cards turn into slides */
 @media (max-width:759px){
-  :root{--nav:60px}
+  :root{--nav:92px}
   html{scroll-snap-type:y mandatory;scroll-padding-top:var(--nav)}
   nav{box-sizing:border-box;height:var(--nav)}
-  .route{padding:9px 0 6px}
-  .route li{flex:1 0 66px}
+  /* the line map folds in two like a real one: MJ01-05 run right, turn at the end, MJ06-08 run back */
+  .route{display:grid;grid-template-columns:repeat(100,1fr);grid-template-rows:34px 34px;row-gap:8px;padding:8px 0 5px;overflow:visible}
+  .route li:nth-child(-n+5){grid-row:1}
+  .route li:nth-child(1){grid-column:1/21}
+  .route li:nth-child(2){grid-column:21/41}
+  .route li:nth-child(3){grid-column:41/61}
+  .route li:nth-child(4){grid-column:61/81}
+  .route li:nth-child(5){grid-column:81/101}
+  .route li:nth-child(6){grid-area:2/66/3/92}
+  .route li:nth-child(7){grid-area:2/40/3/66}
+  .route li:nth-child(8){grid-area:2/14/3/40}
   .route li::before{top:5px;height:4px}
+  .route li:nth-child(5)::before{right:50%}
+  .route li:last-child::before{left:50%;right:0}
+  .route li:nth-child(5)::after{content:"";position:absolute;box-sizing:border-box;top:5px;left:50%;right:0;height:46px;border:4px solid #dcd9ee;border-left:0;border-radius:0 23px 23px 0}
+  .route li:nth-child(5).done::after{border-color:var(--line)}
+  .route li:nth-child(5).current::before,.route li:last-child.current::before{background:var(--line)}
+  .route li:nth-child(6).current::before,.route li:nth-child(7).current::before{background:linear-gradient(270deg,var(--line) 50%,#dcd9ee 50%)}
+  .route a{z-index:1}
   .route .no,.route .en{display:none}
   .route .dot{width:14px;height:14px;border-width:3px;margin:0 0 4px}
   .route .jp{font-size:.74rem}
@@ -185,6 +201,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
   .slide{display:grid;gap:6px;align-content:start;min-width:0;max-height:calc(70svh - var(--nav) - 92px);overflow-y:auto;scroll-snap-align:start;scroll-snap-stop:always}
   .slide.tl-item{border-left:0;padding-left:0}
   .slide h4{margin:0}
+  .slide .q{display:none}
   .slide ul{margin:0;padding-left:18px}
   .dots{display:flex;align-items:center;justify-content:center;gap:7px;padding-top:2px}
   .dots i{width:7px;height:7px;border-radius:50%;background:#cfcbe6;transition:background .2s,transform .2s}
@@ -746,18 +763,19 @@ function initTrain(){
   const macGlass=new THREE.Mesh(new THREE.PlaneGeometry(0.27,0.18),B(0xffffff,{map:macScr})); macGlass.rotation.x=Math.PI/2; macGlass.position.set(0,-0.001,-0.105); macLid.add(macGlass);
   const macDot=new THREE.Mesh(new THREE.CircleGeometry(0.016,12),B(0xf4f4f6)); macDot.rotation.x=-Math.PI/2; macDot.position.set(0,0.009,-0.1); macLid.add(macDot);
   // book: kept on the seat beside her. The spine is the group's origin, bkL closes over bkR
-  const bookG=new THREE.Group(), bkL=new THREE.Group(), bkR=new THREE.Group(), bkLeaf=new THREE.Group(); bookG.add(bkL,bkR,bkLeaf); car.add(bookG);
+  const bookG=new THREE.Group(), bkL=new THREE.Group(), bkR=new THREE.Group(), bkLeaf=new THREE.Group(), LEAF_N=10, leafG=new THREE.PlaneGeometry(0.091,0.131,LEAF_N,1), leafW=0.091, leafTip=new THREE.Vector3(); bookG.add(bkL,bkR,bkLeaf); car.add(bookG);
+  let bkSpine;
   {
     const PW=0.095, PH=0.135, coverM=L(0x5d55b8), pageM=L(0xf1e8d6);
     const textT=ctex(38,54,(g)=>{g.fillStyle='#f6eedd';g.fillRect(0,0,38,54);g.fillStyle='#a79c94';for(let y=5;y<50;y+=4)g.fillRect(4,y,y%3?30:22,1);});
     const textM=L(0xffffff,{map:textT,side:THREE.DoubleSide});
     for(const [h,s] of [[bkL,-1],[bkR,1]]){
-      box(PW+0.006,PH+0.01,0.003,coverM,s*(PW+0.006)/2,0,-0.0015,h);
-      box(PW,PH,0.011,pageM,s*PW/2,0,0.0055,h);
-      put(new THREE.PlaneGeometry(PW-0.008,PH-0.008),textM,s*PW/2,0,0.0116,h,false);
+      box(PW+0.006,PH+0.01,0.004,coverM,s*(PW+0.006)/2,0,-0.002,h);
+      box(PW,PH,0.024,pageM,s*PW/2,0,0.012,h);
+      put(new THREE.PlaneGeometry(PW-0.008,PH-0.008),textM,s*PW/2,0,0.0242,h,false);
     }
-    const leafG=new THREE.PlaneGeometry(PW-0.004,PH-0.004); leafG.translate((PW-0.004)/2,0,0);
-    put(leafG,textM,0,0,0,bkLeaf,false); bkLeaf.position.z=0.0125; bkLeaf.visible=false;
+    put(leafG,textM,0,0,0,bkLeaf,false).frustumCulled=false; bkLeaf.position.z=0.0252; bkLeaf.visible=false;
+    bkSpine=box(0.006,PH+0.01,0.056,coverM,-0.003,0,0.026,bookG);
   }
   // drink
   put(C(0.04,0.032,0.11,8),new THREE.MeshLambertMaterial({color:0xffbccb,transparent:true,opacity:.9,fog:false}),CHAR_X+0.54,0.545,WZ+0.47,car);
@@ -930,6 +948,7 @@ function initTrain(){
             bench:{p:[9.4,0.49,1.03],ry:-2.3,foot:[9.4,0.5]},
             wave:{p:[9.29,STAND_Y,-0.245],ry:1.35,foot:[9.29,-0.245]}};
   const armPose=(lx_,ly,lz,rx,ry,rz)=>({alx:lx_,aly:ly,alz:lz,arx:rx,ary:ry,arz:rz});
+  const XAXIS=new V3(1,0,0);
   const STAND={hipL:HALF,hipR:HALF,kneeL:-HALF,kneeR:-HALF,lean:0,side:0,twist:0,lap:0,leg:0,plantL:0,plantR:0,...armPose(0,0,-.14,0,0,.14)};
   const sitArms=[arms[-1].sit,arms[1].sit];
   const POSE={bench:()=>{const k=Math.sin(t*15)*.05*calm;return {...POSE.rest(),lean:.06,...armPose(-1.02+k,0,.16,-1.02-k,0,-.16)};},rest:()=>({...POSE.sit(),...armPose(-.8,0,.08,-.8,0,-.08)}),sit:()=>({...STAND,hipL:0,hipR:0,kneeL:0,kneeR:0,lap:1,leg:1,...armPose(sitArms[0].x,sitArms[0].y,sitArms[0].z,sitArms[1].x,sitArms[1].y,sitArms[1].z)}),
@@ -954,8 +973,8 @@ function initTrain(){
   // the Switch lives on its own: held in her hands, or set down on the seat at her right when she gets up
   const GRIP_POS=new V3(0,.12,.25), GRIP_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.4,0,Math.PI)),
         SEAT_POS=new V3(CHAR_X-.3,.51,WZ+.52), SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,.35+Math.PI)),
-        qA=new THREE.Quaternion(), qU=new THREE.Quaternion(), heldP=new V3(), HANDS_S=1.25, BOOK_S=1.5;
-  const ease01=x=>x*x*(3-2*x), aimQ=new THREE.Quaternion(), poseQ=new THREE.Quaternion(), DOWN=new V3(0,-1,0), aimD=new V3(), aimT=new V3();
+        qA=new THREE.Quaternion(), qU=new THREE.Quaternion(), heldP=new V3(), HANDS_S=1.25, BOOK_S=3.6, FLIP_T=5.6, FLIP_S=1.8;
+  const ease01=x=>x*x*(3-2*x), smooth=x=>x*x*x*(x*(6*x-15)+10), aimQ=new THREE.Quaternion(), poseQ=new THREE.Quaternion(), DOWN=new V3(0,-1,0), aimD=new V3(), aimT=new V3();
   // turns an arm so the hand really reaches a point in the car, w blends it in
   function aimArm(s,x,y,z,w){if(w<=0)return;const a=arms[s].g;aimT.set(x,y,z).sub(ada.position).applyQuaternion(qA.clone().invert()).applyQuaternion(qU.clone().invert());
     aimD.set(aimT.x-s*.15,aimT.y-.28,aimT.z).normalize();aimQ.setFromUnitVectors(DOWN,aimD);poseQ.copy(a.quaternion).slerp(aimQ,w);a.quaternion.copy(poseQ);}
@@ -966,14 +985,23 @@ function initTrain(){
   // the book is the other way round: reached for on her left, read with her head down
   const BOOK_SEAT=new V3(CHAR_X+.25,.512,WZ+.48), BOOK_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,-.3)),
         BOOK_HOLD=new V3(0,.17,.27), BOOK_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.21,0,Math.PI)), bookP=new V3();
-  function bookPose(c){const p=POSE.rest(),w=Math.sin(c*Math.PI);p.twist=.16*w;p.lean=.05*w+.04*c;return p;}
+  // her reach for the book: lean and look (0-.3), lift to the lap (.3-.72), then the cover opens (.72-1)
+  const bookLook=c=>Math.sin(Math.min(c/.72,1)*Math.PI);
+  function bookPose(c){const p=POSE.rest(),w=bookLook(c);p.twist=.2*w;p.lean=.07*w+.05*smooth(c);p.side=.03*w;return p;}
+  const flipAt=c=>c===1?(t%FLIP_T)/FLIP_S:1, tipQ=new THREE.Quaternion();
   function placeBook(c){
-    bookP.copy(BOOK_HOLD).applyQuaternion(qU).applyQuaternion(qA).add(ada.position);
-    const e=ease01(Math.min(Math.max((c-.25)/.5,0),1)),o=ease01(Math.max((c-.7)/.3,0));
-    bookG.position.lerpVectors(BOOK_SEAT,bookP,e);bookG.position.y+=Math.sin(e*Math.PI)*.05;
+    const e=smooth(Math.min(Math.max((c-.3)/.42,0),1)),o=smooth(Math.max((c-.72)/.28,0));
+    bookP.copy(BOOK_HOLD);bookP.x+=.05*(1-o);bookP.applyQuaternion(qU).applyQuaternion(qA).add(ada.position);
+    bookG.position.lerpVectors(BOOK_SEAT,bookP,e);bookG.position.y+=Math.sin(e*Math.PI)*.06;
     bookG.quaternion.copy(BOOK_SEAT_Q).slerp(qA.clone().multiply(qU).multiply(BOOK_Q),e);
-    bkL.rotation.y=Math.PI*(1-o)+.18*o;bkL.position.z=.0262*(1-o);bkR.rotation.y=-.18*o;
-    const f=c===1?(t%3.6)/.9:1;bkLeaf.visible=f<1;if(f<1)bkLeaf.rotation.y=-.18-(Math.PI-.36)*ease01(f);}
+    if(c===1)bookG.quaternion.multiply(tipQ.setFromAxisAngle(XAXIS,Math.sin(t*.8)*.025*calm));   // the book rests and breathes with her
+    bkL.rotation.y=Math.PI*(1-o)+.2*o;bkL.position.z=.0536*(1-o);bkR.rotation.y=-.2*o;
+    bkSpine.scale.z=1-.9*o;bkSpine.position.z=.026*(1-.9*o)-.004*o;
+    const f=flipAt(c);bkLeaf.visible=f<1;if(f>=1)return;
+    // the page lifts at its edge first and bends as it crosses over the spine
+    const E=smooth(Math.min(f,1)),th=.2+(Math.PI-.4)*E,curl=Math.sin(E*Math.PI)*1.15,pos=leafG.attributes.position,ds=leafW/LEAF_N;let x=0,z=0;
+    for(let i=0;i<=LEAF_N;i++){if(i){const a=th+curl*(i/LEAF_N-.45);x+=Math.cos(a)*ds;z+=Math.sin(a)*ds;}pos.setXYZ(i,x,.0655,z);pos.setXYZ(i+LEAF_N+1,x,-.0655,z);}
+    pos.needsUpdate=true;leafG.computeVertexNormals();leafTip.set(x,0,z+.0252).applyQuaternion(bookG.quaternion).add(bookG.position);}
   function placeSwitch(c){
     qA.setFromEuler(ada.rotation);qU.setFromEuler(upper.rotation);
     heldP.copy(GRIP_POS).applyQuaternion(qU).applyQuaternion(qA).add(ada.position);
@@ -1006,7 +1034,7 @@ function initTrain(){
       if(climb===1)phase=spot==='sit'&&stow>0?'hands':spot==='bench'?'open':'idle'; else if(climb===0)phase='walk';
     }
     if(phase==='hands'){
-      stow=Math.min(Math.max(stow+(goal==='sit'&&!reading?-1:1)*dt*hurry/HANDS_S,0),1); want=handsPose(stow);
+      stow=Math.min(Math.max(stow+(goal==='sit'&&!reading?-1:1)*dt*hurry/(activeId==='research'?HANDS_S*1.5:HANDS_S),0),1); want=handsPose(stow);
       if(stow===0)phase='idle'; else if(stow===1&&reading)phase='book'; else if(stow===1&&goal!=='sit')phase='climb';
     }
     if(phase==='book'){
@@ -1052,9 +1080,10 @@ function initTrain(){
     legs[-1].hip.rotation.x=pose.hipL; legs[1].hip.rotation.x=pose.hipR; legs[-1].knee.rotation.x=pose.kneeL; legs[1].knee.rotation.x=pose.kneeR;
     arms[-1].g.rotation.set(pose.alx,pose.aly,pose.alz); arms[1].g.rotation.set(pose.arx,pose.ary,pose.arz);
     lap.visible=pose.lap>.5; lap.scale.z=Math.max(pose.lap,.01); placeSwitch(stow); placeMac(macC); placeBook(read);
-    if(read>0){aimArm(1,bookG.position.x,bookG.position.y,bookG.position.z,ease01(Math.min(read*4,1)));
-      for(const n of [-1,1]){aimT.set(-n*.085,0,0).applyQuaternion(bookG.quaternion).add(bookG.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,ease01(Math.max((read-.62)/.38,0)));}}
-    if(phase==='hands')aimArm(-1,gameG.position.x-.1*(1-stow),gameG.position.y,gameG.position.z,ease01(Math.min(stow*5,1))*ease01(Math.min((1-stow)*4,1)));
+    if(read>0){const o=smooth(Math.max((read-.72)/.28,0));
+      aimArm(1,bookG.position.x+.05,bookG.position.y,bookG.position.z,smooth(Math.min(read/.3,1)));
+      for(const n of [-1,1]){aimT.set(n>0?-.085*o:.09,-.02,0).applyQuaternion(bookG.quaternion).add(bookG.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,n>0?smooth(Math.min(Math.max((read-.45)/.3,0),1)):smooth(Math.min(Math.max((read-.6)/.25,0),1)));}
+      const f=flipAt(read);if(f<1)aimArm(-1,leafTip.x,leafTip.y,leafTip.z,smooth(Math.min(f/.22,1))*smooth(Math.min((1-f)/.25,1))*.85);}
     const holdMac=macC<=.5?ease01(Math.min(macC*8,1)):1-ease01(Math.min((macC-.5)*2.5,1));
     for(const n of [-1,1]){aimT.set(n*.13,0,0).applyQuaternion(mac.quaternion).add(mac.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,holdMac);}
   }
@@ -1064,7 +1093,7 @@ function initTrain(){
     const docH=Math.max(document.documentElement.scrollHeight-innerHeight,1);setTime(Math.min(scrollY/docH,1));
     // the library comes in at one steady speed, timed to reach the window as Ada does. The train halts while she looks, then pulls away
     const atSchool=activeId==='education', atWindow=spot==='kneel'&&phase==='idle';
-    if(stop==='away'){go=Math.min(go+dt/SETTLE,1);if(atSchool){stop='pass';lx=KEIO_START;keioV=KEIO_START/(atWindow?2.5:phase==='idle'?KEIO_ETA[spot]||6:6);}}
+    if(stop==='away'){go=Math.min(go+dt/SETTLE,1);if(atSchool){stop='pass';lx=KEIO_START;keioV=KEIO_START/(atWindow?2.5:phase==='idle'?(KEIO_ETA[spot]||6)+read*BOOK_S:6);}}
     else if(stop==='pass'){go=Math.min(go+dt/SETTLE,1);lx-=keioV*go*dt*m;if(!atSchool)stop='leave';else if(atWindow&&lx<=.5)stop='parked';}
     else if(stop==='parked'){go=Math.max(go-dt/SETTLE,0);lx-=keioV*go*dt*m;if(!atSchool)stop='leave';}
     else{go=Math.min(go+dt/SETTLE,1);lx-=keioV*go*dt*m;if(lx<-14){stop='away';lx=60;}}
@@ -1083,10 +1112,10 @@ function initTrain(){
     dg.attributes.position.needsUpdate=true;
     // Ada
     const beat=Math.sin(t*Math.PI*1.4);
-    nod+=((spot==='bench'&&phase==='idle'?.42:read*.34)-nod)*Math.min(dt*4,1);
+    nod+=((spot==='bench'&&phase==='idle'?.42:smooth(Math.max((read-.6)/.4,0))*.4+bookLook(read)*.2)-nod)*Math.min(dt*4,1);
     head.rotation.x=nod+beat*0.03*m+look.y*0.06;
     moveAda(dt);
-    const headT=scare>0&&scare<=SCARE-.5?Math.sin((SCARE-.5-scare)*Math.PI*1.4)*.75:look.x*0.3-(phase==='hands'?Math.sin(stow*Math.PI)*.5:0);
+    const headT=scare>0&&scare<=SCARE-.5?Math.sin((SCARE-.5-scare)*Math.PI*1.4)*.75:look.x*0.3-(phase==='hands'?Math.sin(stow*Math.PI)*.5:0)+bookLook(read)*.5+(read===1?Math.sin(t*.55)*.05*m:0);
     head.rotation.y+=(headT-head.rotation.y)*Math.min(dt*(scare>0?7:3),1);
     head.rotation.z=0.13+Math.sin(t*0.7)*0.05*m;
     torso.scale.y=1+Math.sin(t*1.2)*0.02;
