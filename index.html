@@ -803,7 +803,8 @@ function initTrain(){
 
   /* ---------- loop ---------- */
   let last=performance.now(),t=0,blinkAt=2.2,peckAt=2.5;
-  let go=1,lx=60,nod=0;
+  let go=1,lx=60,nod=0,stop='away';
+  const TRAIN_V=11, BRAKE=15, RAMP=2.7;
   /* ---------- Ada walks: one rig, a target pose per stop, and leave > walk > settle between them ---------- */
   const HALF=Math.PI/2, STAND_Y=0.385, SCARE=2.8, calm=reduce?.25:1;
   const SP={sit:{p:[CHAR_X,0.49,WZ+0.47],ry:-0.08,foot:[CHAR_X,-0.5]},
@@ -925,9 +926,13 @@ function initTrain(){
   function frame(now){
     const dt=Math.min((now-last)/1000,0.05);last=now;t+=dt;const m=reduce?0.25:1;
     const docH=Math.max(document.documentElement.scrollHeight-innerHeight,1);setTime(Math.min(scrollY/docH,1));
-    // the train pulls in at Education: the city stops and the library slides into the window, then leaves to the left
-    const atSchool=activeId==='education',ease=Math.min(dt*1.5,1);go+=((atSchool?0:1)-go)*ease;const ms=m*go;
-    if(atSchool)lx+=(0-lx)*ease;else if(lx<60){lx-=22*dt*m;if(lx<-60)lx=60;}
+    // one train speed drives everything outside. It brakes over a fixed distance so the library stops exactly in the window
+    const atSchool=activeId==='education';
+    if(stop==='away'){go=Math.min(go+dt/RAMP,1);if(atSchool&&go>.98){stop='arrive';lx=BRAKE;go=1;}}
+    else if(stop==='arrive'){if(!atSchool)stop='leave';else{go=Math.sqrt(Math.max(lx,0)/BRAKE);lx-=TRAIN_V*Math.max(go,.03)*dt*m;if(lx<=.01){lx=0;go=0;stop='parked';}}}
+    else if(stop==='parked'){if(!atSchool)stop='leave';}
+    else{go=Math.min(go+dt/RAMP,1);lx-=TRAIN_V*go*dt*m;if(lx<-26){stop='away';lx=60;}}
+    const ms=m*go;
     keio.position.x=LMX+lx;keio.visible=lx<60;
     for(let i=0;i<NB;i++){const b=bd[i];b.x-=b.s*dt*ms;if(b.x<-65)b.x+=130;dummy.position.set(b.x,-6,b.z);dummy.scale.set(b.w,b.h,b.d);dummy.updateMatrix();city.setMatrixAt(i,dummy.matrix);}
     city.instanceMatrix.needsUpdate=true;
@@ -962,7 +967,7 @@ function initTrain(){
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__train={camera,scene,ada,head,keio,adaState:()=>({spot,phase,climb,stow,macC})};
+  window.__train={camera,scene,ada,head,keio,trainState:()=>({stop,go,lx}),adaState:()=>({spot,phase,climb,stow,macC})};
 }
 
 if(typeof THREE!=='undefined'){ try{ initTrain(); }catch(e){ console.warn('train',e); } }
