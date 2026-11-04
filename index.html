@@ -420,7 +420,7 @@ function initTrain(){
     g.position.set(Math.random()*160-80,16+Math.random()*12,-80-Math.random()*30);g.userData.s=.3+Math.random()*.4;scene.add(g);clouds.push(g);}
 
   /* ---------- Keio library: the Education stop, seen from the window ---------- */
-  const LMX=12.2, keio=new THREE.Group(); keio.position.set(LMX,0.46,-8); keio.scale.setScalar(.58); keio.visible=false; scene.add(keio);
+  const LMX=12.2, keio=new THREE.Group(); keio.position.set(LMX,0.04,-8); keio.scale.setScalar(.58); keio.visible=false; scene.add(keio);
   const lit=c=>outMat(c,{emissive:c,emissiveIntensity:.4});
   const brick=lit(0xa2604f), brick2=lit(0x925646), stone=lit(0xcbbfae), slate=lit(0x2f2d38), glass=lit(0x8797a0), dark=lit(0x2b2730), lawn=lit(0x5f6f52), hedge=lit(0x48584a);
   const prism=(w,h,d,mat,x,y,z)=>{const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(0,h);sh.closePath();return put(new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false}),mat,x,y,z-d/2,keio,false);};
