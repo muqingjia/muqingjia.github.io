@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793794349'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793794400'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -292,7 +292,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
   <section class="stop wide fit" id="works" data-stop="MJ05 WORKS">
     <div class="card">
       <span class="led"><i>ただいま</i> MJ05 WORKS</span>
-      <h2>Selected works, 2022–2025</h2>
+      <h2>Selected works 2022–2025</h2>
       <p style="color:var(--muted);font-size:.92rem">Each work hangs as an ad poster in the train. Pick one, or tap a poster in the car.</p>
       <div id="detail" aria-live="polite" style="display:grid"></div>
       <div class="ctrl">
