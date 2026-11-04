@@ -23,6 +23,8 @@
   --pink:#ff8fa8;
   --gold:#f0c24b;
   --led-bg:#1f1b26;
+  --led-soft:#35304d;   /* ink purple: dark like a station display, softer than black */
+  --led:#f4bc7a;
   --rule:rgba(39,36,58,.12);
   --display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Arial Rounded MT Bold",system-ui,sans-serif;
   --body:"Zen Kaku Gothic New","Hiragino Sans","Helvetica Neue",Arial,sans-serif;
@@ -72,10 +74,10 @@ main{position:relative;z-index:1;pointer-events:none}
 @media (min-width:1100px){.stop{padding-left:max(48px,env(safe-area-inset-left,0px))}}
 
 .card{background:color-mix(in srgb,var(--paper) 94%,transparent);border-radius:14px;border-top:7px solid var(--line);box-shadow:0 18px 50px -20px rgba(39,36,58,.45);padding:22px 24px 24px;display:grid;gap:14px}
-.led{position:absolute;top:27px;right:24px;display:inline-flex;gap:8px;align-items:center;background:color-mix(in srgb,var(--line) 13%,transparent);color:#4f47b8;font-family:var(--pixel);font-size:.76rem;letter-spacing:.08em;padding:4px 9px;border-radius:5px}
+.led{position:absolute;top:27px;right:24px;display:inline-flex;gap:8px;align-items:center;background:var(--led-soft);color:var(--led);text-shadow:0 0 6px color-mix(in srgb,var(--led) 40%,transparent);font-family:var(--pixel);font-size:.72rem;letter-spacing:.08em;padding:3px 8px;border-radius:4px}
 .stop.fit .led{top:21px}
 @media (max-width:720px){.led,.stop.fit .led{position:static;justify-self:end}}
-.led i{font-style:normal;opacity:.75}
+.led i{font-style:normal;color:#a8e6c4}
 .card h2{font-size:clamp(1.6rem,3.4vw,2.2rem);line-height:1.15}
 .card p{margin:0}
 .hl{font-weight:700;background:linear-gradient(transparent 62%,color-mix(in srgb,var(--line) 26%,transparent) 0)}
@@ -119,7 +121,7 @@ main{position:relative;z-index:1;pointer-events:none}
 .ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .btn{font-family:var(--display);font-weight:700;font-size:.85rem;line-height:1.4;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
 .btn:hover{background:var(--ink);color:var(--paper)}
-.count{font-family:var(--pixel);color:#4f47b8;background:color-mix(in srgb,var(--line) 13%,transparent);border-radius:6px;padding:6px 10px;font-variant-numeric:tabular-nums;min-width:70px;text-align:center;letter-spacing:.06em}
+.count{font-family:var(--pixel);color:var(--led);background:var(--led-soft);border-radius:6px;padding:6px 10px;font-variant-numeric:tabular-nums;min-width:70px;text-align:center;letter-spacing:.06em}
 .go{font-family:var(--display);font-weight:700;font-size:1.02rem;border:0;background:var(--line);color:#fff;border-radius:12px;padding:11px 22px;cursor:pointer;box-shadow:0 5px 0 #4f47b8;transition:transform .08s,box-shadow .08s;display:inline-flex;align-items:center;gap:8px}
 .go:hover{background:#6d64e6;transform:translateY(-1px);box-shadow:0 6px 0 #4f47b8}
 .go:active{transform:translateY(4px);box-shadow:0 1px 0 #4f47b8}
