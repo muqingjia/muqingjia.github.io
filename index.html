@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793756'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793965'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -158,7 +158,10 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 /* phone: one stop per screen, the scene on top and a short card below; long cards turn into slides */
 @media (max-width:759px){
   :root{--nav:92px}
-  html{scroll-snap-type:y mandatory;scroll-padding-top:var(--nav)}
+  html{scroll-snap-type:y mandatory;scroll-padding-top:var(--nav);background:#6e5a58}
+  body{background:#6e5a58}
+  .stop>.card{transition:opacity .2s}
+  .hop .stop>.card{opacity:0}
   nav{box-sizing:border-box;height:var(--nav)}
   /* the line map folds in two like a real one: MJ01-05 run right, turn at the end, MJ06-08 run back */
   .route{display:grid;grid-template-columns:repeat(100,1fr);grid-template-rows:34px 34px;row-gap:8px;padding:8px 0 5px;overflow:visible}
@@ -414,10 +417,11 @@ if(phone.matches){
     deck.addEventListener('scroll',mark,{passive:true});mark();return {deck,page};
   };
   // a tap jumps straight to its stop: snapping pauses, or iOS pulls the page back mid-jump
-  const root=document.documentElement,navBar=document.querySelector('nav');let snapT=0;
+  const root=document.documentElement,navBar=document.querySelector('nav');let snapT=0,hopT=0;
   document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]'),el=a&&document.querySelector(a.getAttribute('href'));if(!el)return;
-    e.preventDefault();root.style.scrollSnapType='none';scrollTo(0,el.id==='top'?0:el.getBoundingClientRect().top+scrollY-navBar.offsetHeight);trackStop();
-    clearTimeout(snapT);snapT=setTimeout(()=>root.style.scrollSnapType='',400);});
+    e.preventDefault();clearTimeout(hopT);clearTimeout(snapT);root.classList.add('hop');   // the card fades out before the jump and back in after it, so the jump itself is never seen
+    hopT=setTimeout(()=>{root.style.scrollSnapType='none';scrollTo(0,el.id==='top'?0:el.getBoundingClientRect().top+scrollY-navBar.offsetHeight);trackStop();
+      requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.remove('hop')));snapT=setTimeout(()=>root.style.scrollSnapType='',500);},reduce?0:180);});
   const cardOf=id=>document.querySelector('#'+id+' .card');
   { // education: one school per slide
     const card=cardOf('education'),tl=card.querySelector('.tl');
