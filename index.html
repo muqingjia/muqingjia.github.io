@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793390'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793555'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -159,6 +159,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 @media (max-width:759px){
   :root{--nav:60px}
   html{scroll-snap-type:y mandatory;scroll-padding-top:var(--nav)}
+  nav{box-sizing:border-box;height:var(--nav)}
   .route{padding:9px 0 6px}
   .route li{flex:1 0 66px}
   .route li::before{top:5px;height:4px}
@@ -395,6 +396,11 @@ if(phone.matches){
     const mark=()=>{const g=slides[page()].dataset.g;[...dots.children].forEach((d,i)=>d.classList.toggle('on',groups[i]===g));if(onGroup)onGroup(+g);};
     deck.addEventListener('scroll',mark,{passive:true});mark();return {deck,page};
   };
+  // a tap jumps straight to its stop: snapping pauses, or iOS pulls the page back mid-jump
+  const root=document.documentElement,navBar=document.querySelector('nav');let snapT=0;
+  document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]'),el=a&&document.querySelector(a.getAttribute('href'));if(!el)return;
+    e.preventDefault();root.style.scrollSnapType='none';scrollTo(0,el.id==='top'?0:el.getBoundingClientRect().top+scrollY-navBar.offsetHeight);trackStop();
+    clearTimeout(snapT);snapT=setTimeout(()=>root.style.scrollSnapType='',400);});
   const cardOf=id=>document.querySelector('#'+id+' .card');
   { // education: one school per slide
     const card=cardOf('education'),tl=card.querySelector('.tl');
