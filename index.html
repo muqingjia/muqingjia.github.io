@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793146'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793793331'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -408,9 +408,9 @@ if(phone.matches){
   { // skills: two groups of chips
     const card=cardOf('skills'),g=[...card.querySelectorAll('.skillgrp')];
     makeDeck(card,[slide(g.slice(0,2),0),slide(g.slice(2),1)]);}
-  { // works: story, then notes and tags, for each work in turn
+  { // works: one slide per work, the intro only
     const card=cardOf('works'),s=[];
-    [...detail.children].forEach((w,i)=>{const k=[...w.children];s.push(slide(k.slice(0,4),i),slide([k[0].cloneNode(true),k[1].cloneNode(true),...k.slice(4)],i));});
+    [...detail.children].forEach((w,i)=>s.push(slide([...w.children].slice(0,4),i)));detail.replaceChildren();
     const d=makeDeck(card,s,g=>{if(g!==current)select(g);});
     syncDeck=i=>{if(+s[d.page()].dataset.g!==i)d.deck.scrollLeft=s.findIndex(x=>+x.dataset.g===i)*(d.deck.clientWidth+18);};}
 }
