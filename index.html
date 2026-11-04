@@ -23,7 +23,6 @@
   --pink:#ff8fa8;
   --gold:#f0c24b;
   --led-bg:#1f1b26;
-  --led:#ffad4a;
   --rule:rgba(39,36,58,.12);
   --display:"Zen Maru Gothic","Hiragino Maru Gothic ProN","Arial Rounded MT Bold",system-ui,sans-serif;
   --body:"Zen Kaku Gothic New","Hiragino Sans","Helvetica Neue",Arial,sans-serif;
@@ -73,8 +72,10 @@ main{position:relative;z-index:1;pointer-events:none}
 @media (min-width:1100px){.stop{padding-left:max(48px,env(safe-area-inset-left,0px))}}
 
 .card{background:color-mix(in srgb,var(--paper) 94%,transparent);border-radius:14px;border-top:7px solid var(--line);box-shadow:0 18px 50px -20px rgba(39,36,58,.45);padding:22px 24px 24px;display:grid;gap:14px}
-.led{justify-self:start;display:inline-flex;gap:10px;align-items:center;background:var(--led-bg);color:var(--led);font-family:var(--pixel);font-size:.82rem;letter-spacing:.08em;padding:5px 10px;border-radius:5px}
-.led i{font-style:normal;color:#7dffb0}
+.led{position:absolute;top:27px;right:24px;display:inline-flex;gap:8px;align-items:center;background:color-mix(in srgb,var(--line) 13%,transparent);color:#4f47b8;font-family:var(--pixel);font-size:.76rem;letter-spacing:.08em;padding:4px 9px;border-radius:5px}
+.stop.fit .led{top:21px}
+@media (max-width:720px){.led,.stop.fit .led{position:static;justify-self:end}}
+.led i{font-style:normal;opacity:.75}
 .card h2{font-size:clamp(1.6rem,3.4vw,2.2rem);line-height:1.15}
 .card p{margin:0}
 .hl{font-weight:700;background:linear-gradient(transparent 62%,color-mix(in srgb,var(--line) 26%,transparent) 0)}
@@ -118,7 +119,7 @@ main{position:relative;z-index:1;pointer-events:none}
 .ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .btn{font-family:var(--display);font-weight:700;font-size:.85rem;line-height:1.4;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
 .btn:hover{background:var(--ink);color:var(--paper)}
-.count{font-family:var(--pixel);color:var(--led);background:var(--led-bg);border-radius:6px;padding:6px 10px;font-variant-numeric:tabular-nums;min-width:70px;text-align:center;letter-spacing:.06em}
+.count{font-family:var(--pixel);color:#4f47b8;background:color-mix(in srgb,var(--line) 13%,transparent);border-radius:6px;padding:6px 10px;font-variant-numeric:tabular-nums;min-width:70px;text-align:center;letter-spacing:.06em}
 .go{font-family:var(--display);font-weight:700;font-size:1.02rem;border:0;background:var(--line);color:#fff;border-radius:12px;padding:11px 22px;cursor:pointer;box-shadow:0 5px 0 #4f47b8;transition:transform .08s,box-shadow .08s;display:inline-flex;align-items:center;gap:8px}
 .go:hover{background:#6d64e6;transform:translateY(-1px);box-shadow:0 6px 0 #4f47b8}
 .go:active{transform:translateY(4px);box-shadow:0 1px 0 #4f47b8}
@@ -156,7 +157,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 <main>
   <header class="stop hero" id="top" data-stop="MJ01 MUQING JIA">
     <div class="card">
-      <span class="led"><i>始発</i> FIRST STOP · MJ01 START</span>
+      <span class="led"><i>始発</i> MJ01 START</span>
       <h1>Muqing (Ada) Jia</h1>
       <p class="lede">Media Designer at the <a class="hl" href="https://www.embodiedmedia.org/" target="_blank" rel="noopener">Embodied Media</a> Project, Keio University Graduate School of Media Design. I explore the possibilities of interaction through technology, <span class="hl">immersive environments</span>, and <span class="hl">human-centered experiences</span>.</p>
       <div class="chips"><span class="chip">Interaction Design</span><span class="chip">XR &amp; Immersive Experiences</span><span class="chip">Creative Technology</span></div>
@@ -166,7 +167,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop" id="about" data-stop="MJ02 ABOUT">
     <div class="card">
-      <span class="led"><i>次は</i> NEXT · MJ02 ABOUT</span>
+      <span class="led"><i>次は</i> MJ02 ABOUT</span>
       <h2>About</h2>
       <p>I studied Intermedia Art at the <a class="hl" href="https://www.caa.edu.cn/" target="_blank" rel="noopener">China Academy of Art</a>, where I explored 3D experiences, sound, audiovisual art, and virtual environments.</p>
       <p>After graduation, I joined VAST, where I worked on <a class="hl" href="https://www.tripo3d.ai/" target="_blank" rel="noopener">Tripo AI</a> and co-created <a href="https://dl.acm.org/doi/10.1145/3681757.3697052" target="_blank" rel="noopener">Tripo Doodle</a>. Now at KMD, I'm exploring how design can bring art and technology together to create <span class="hl">meaningful interactive experiences</span>. I'm especially interested in <span class="hl">XR, human perception, and interactive projects</span> that combine hardware and software.</p>
@@ -175,7 +176,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop" id="education" data-stop="MJ03 EDUCATION">
     <div class="card">
-      <span class="led"><i>次は</i> NEXT · MJ03 EDUCATION</span>
+      <span class="led"><i>次は</i> MJ03 EDUCATION</span>
       <h2>Education</h2>
       <div class="tl">
         <div class="tl-item">
@@ -197,7 +198,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop wide fit" id="experience" data-stop="MJ04 EXPERIENCE">
     <div class="card">
-      <span class="led"><i>次は</i> NEXT · MJ04 EXPERIENCE</span>
+      <span class="led"><i>次は</i> MJ04 EXPERIENCE</span>
       <h2>Work experience</h2>
       <div class="tl">
         <div class="tl-item">
@@ -220,7 +221,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop wide fit" id="works" data-stop="MJ05 WORKS">
     <div class="card">
-      <span class="led"><i>次は</i> NEXT · MJ05 WORKS</span>
+      <span class="led"><i>次は</i> MJ05 WORKS</span>
       <h2>Selected works, 2022–2025</h2>
       <p style="color:var(--muted);font-size:.92rem">Each work hangs as an ad poster in the train. Pick one, or tap a poster in the car.</p>
       <div id="detail" aria-live="polite" style="display:grid"></div>
@@ -235,7 +236,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop wide fit research" id="research" data-stop="MJ06 RESEARCH">
     <div class="card">
-      <span class="led"><i>次は</i> NEXT · MJ06 RESEARCH</span>
+      <span class="led"><i>次は</i> MJ06 RESEARCH</span>
       <h2>Research directions</h2>
       <div style="display:grid;gap:10px">
         <span class="hint">SERVICE DESIGN</span>
@@ -255,7 +256,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop fit" id="skills" data-stop="MJ07 SKILLS">
     <div class="card">
-      <span class="led"><i>次は</i> NEXT · MJ07 SKILLS</span>
+      <span class="led"><i>次は</i> MJ07 SKILLS</span>
       <h2>Skills</h2>
       <div class="skillgrp"><b>3D</b><div class="chips"><span class="chip">Blender</span><span class="chip">ZBrush</span><span class="chip">Substance Painter</span><span class="chip">Unity (C#)</span><span class="chip">Unreal Engine 5</span><span class="chip">Motion capture</span></div></div>
       <div class="skillgrp"><b>CREATIVE CODING</b><div class="chips"><span class="chip">Processing</span><span class="chip">p5.js</span><span class="chip">Arduino</span><span class="chip">TouchDesigner</span><span class="chip">VCV Rack</span></div></div>
@@ -267,7 +268,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop end" id="contact" data-stop="MJ08 CONTACT">
     <div class="card">
-      <span class="led"><i>終点</i> LAST STOP · MJ08 CONTACT</span>
+      <span class="led"><i>終点</i> MJ08 CONTACT</span>
       <h2>Get in touch</h2>
       <span class="email" id="email">muqing.jia@keio.jp</span>
       <div class="ctrl"><button class="btn" id="copy" type="button">Copy email</button><a class="btn" href="https://www.linkedin.com/in/muqing-jia-416902316" target="_blank" rel="noopener">LinkedIn</a></div>
