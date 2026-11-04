@@ -148,6 +148,40 @@ main{position:relative;z-index:1;pointer-events:none}
 .email{font-family:var(--display);font-weight:700;font-size:clamp(1.2rem,4.4vw,1.8rem);word-break:break-all}
 footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font-family:var(--pixel);font-size:.8rem;color:#e8e6e3;text-shadow:0 1px 4px rgba(39,36,58,.5);pointer-events:none}
 .end{padding-bottom:32vh}
+/* phone: one stop per screen, the scene on top and a short card below; long cards turn into slides */
+@media (max-width:759px){
+  :root{--nav:60px}
+  html{scroll-snap-type:y mandatory;scroll-padding-top:var(--nav)}
+  .route{padding:9px 0 6px}
+  .route li{flex:1 0 66px}
+  .route li::before{top:5px;height:4px}
+  .route .no,.route .en{display:none}
+  .route .dot{width:14px;height:14px;border-width:3px;margin:0 0 4px}
+  .route .jp{font-size:.74rem}
+  .stop,.stop.fit,.stop.end,.stop.hero{display:grid;align-content:end;box-sizing:border-box;height:calc(100svh - var(--nav));min-height:0;padding-block:0 14px;scroll-margin-top:0;scroll-snap-align:start;scroll-snap-stop:always}
+  .stop.hero{padding-bottom:52px}
+  .stop>.card,.stop.wide>.card{min-width:0;max-width:none}
+  .card,.stop.fit>.card{background:color-mix(in srgb,var(--paper) 86%,transparent);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);border-top-width:5px;padding:13px 16px 12px;gap:8px}
+  .card h1{font-size:1.75rem}
+  .card h2{font-size:1.32rem;padding-right:128px}
+  .card p,.card li,.lede{font-size:.9rem;line-height:1.55}
+  .tl-item h3,.card h3{font-size:1.04rem;line-height:1.3}
+  .work-head h3{font-size:1.15rem}
+  .chip{font-size:.72rem;padding:2px 8px}
+  .stop:not(.hero) .led{position:absolute;top:12px;right:14px}
+  .stop:not(.hero) .led i{display:none}
+  footer,#detail,#works .ctrl,#works .picker,#works .card>p{display:none}
+  .deck{display:grid;grid-auto-flow:column;grid-auto-columns:100%;column-gap:18px;min-width:0;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none}
+  .deck::-webkit-scrollbar{display:none}
+  .slide{display:grid;gap:6px;align-content:start;min-width:0;max-height:calc(70svh - var(--nav) - 92px);overflow-y:auto;scroll-snap-align:start;scroll-snap-stop:always}
+  .slide.tl-item{border-left:0;padding-left:0}
+  .slide h4{margin:0}
+  .slide ul{margin:0;padding-left:18px}
+  .dots{display:flex;align-items:center;justify-content:center;gap:7px;padding-top:2px}
+  .dots i{width:7px;height:7px;border-radius:50%;background:#cfcbe6;transition:background .2s,transform .2s}
+  .dots i.on{background:var(--line);transform:scale(1.3)}
+  .dots::after{content:"swipe";font-family:var(--pixel);font-size:.68rem;color:var(--muted);margin-left:6px}
+}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.scrollhint i{animation:none}}
 </style>
 
@@ -335,10 +369,44 @@ function renderDetail(){
   count.textContent=pad(current+1)+' / '+pad(WORKS.length);
   [...picker.children].forEach((b,i)=>b.setAttribute('aria-pressed',i===current?'true':'false'));
 }
-function select(i){current=(i+WORKS.length)%WORKS.length;renderDetail();if(onSelect)onSelect(current);}
+let syncDeck=null;
+function select(i){current=(i+WORKS.length)%WORKS.length;renderDetail();if(onSelect)onSelect(current);if(syncDeck)syncDeck(current);}
 document.getElementById('prev').addEventListener('click',()=>select(current-1));
 document.getElementById('next').addEventListener('click',()=>select(current+1));
 renderDetail();
+
+/* ---------- phone: long cards become short slides ---------- */
+const phone=matchMedia('(max-width:759px)');
+phone.addEventListener('change',()=>location.reload());
+if(phone.matches){
+  const slide=(nodes,g,cls='')=>{const s=document.createElement('div');s.className='slide '+cls;s.dataset.g=g;s.append(...nodes);return s;};
+  const makeDeck=(card,slides,onGroup)=>{
+    const deck=document.createElement('div'),dots=document.createElement('div');deck.className='deck';dots.className='dots';deck.append(...slides);
+    const groups=[...new Set(slides.map(s=>s.dataset.g))];groups.forEach(()=>dots.append(document.createElement('i')));card.append(deck,dots);
+    const page=()=>Math.round(deck.scrollLeft/(deck.clientWidth+18));
+    const mark=()=>{const g=slides[page()].dataset.g;[...dots.children].forEach((d,i)=>d.classList.toggle('on',groups[i]===g));if(onGroup)onGroup(+g);};
+    deck.addEventListener('scroll',mark,{passive:true});mark();return {deck,page};
+  };
+  const cardOf=id=>document.querySelector('#'+id+' .card');
+  { // education: one school per slide
+    const card=cardOf('education'),tl=card.querySelector('.tl');
+    const s=[...tl.children].map((it,i)=>slide([...it.children],i,'tl-item'));tl.remove();makeDeck(card,s);}
+  { // experience: the company stays put, one project per slide
+    const card=cardOf('experience'),tl=card.querySelector('.tl'),it=tl.querySelector('.tl-item'),k=[...it.children],s=[];
+    card.insertBefore(slide(k.slice(0,3),0,'tl-item'),tl);
+    for(let i=3;i<k.length;i+=2)s.push(slide([k[i],k[i+1]],s.length,'tl-item'));tl.remove();makeDeck(card,s);}
+  { // research: one direction per slide
+    const card=cardOf('research'),[a,b]=[...card.children].slice(2);
+    const s=[slide([...a.children],0),slide([...b.children],1)];a.remove();b.remove();makeDeck(card,s);}
+  { // skills: two groups of chips
+    const card=cardOf('skills'),g=[...card.querySelectorAll('.skillgrp')];
+    makeDeck(card,[slide(g.slice(0,2),0),slide(g.slice(2),1)]);}
+  { // works: story, then notes and tags, for each work in turn
+    const card=cardOf('works'),s=[];
+    [...detail.children].forEach((w,i)=>{const k=[...w.children];s.push(slide(k.slice(0,4),i),slide([k[0].cloneNode(true),k[1].cloneNode(true),...k.slice(4)],i));});
+    const d=makeDeck(card,s,g=>{if(g!==current)select(g);});
+    syncDeck=i=>{if(+s[d.page()].dataset.g!==i)d.deck.scrollLeft=s.findIndex(x=>+x.dataset.g===i)*(d.deck.clientWidth+18);};}
+}
 
 /* ---------- stop tracking (nav + camera) ---------- */
 const stops=[...document.querySelectorAll('[data-stop]')];
@@ -802,11 +870,11 @@ function initTrain(){
   const K={
     top:{p:[10.35,1.12,1.36],l:[10.35,1.04,-1.5],m:{p:[11.3,1.15,1.35],l:[11.3,0.82,-1.4]},f:.55},
     about:{p:[10.95,1.12,-0.18],l:[11.12,1.04,-1.05],m:{p:[11.3,1.12,-0.25],l:[11.32,0.98,-1.05]},f:.45},
-    education:{p:[8.9,1.25,1.05],l:[9.6,1.2,-4.0],f:.5},
-    experience:{p:[6.2,1.45,0.9],l:[10.2,0.85,-1.2],f:.55},
-    research:{p:[10.25,1.02,0.55],l:[10.42,0.8,-1.0],m:{p:[11.32,0.95,-0.4],l:[11.32,0.6,-0.95]},f:.5},
-    skills:{p:[8.75,0.84,-0.2],l:[8.92,0.6,-1.05],m:{p:[9.35,0.85,-0.3],l:[9.35,0.5,-1.05]},f:.5},
-    contact:{p:[12.9,1.55,0.55],l:[0,1.15,-0.3],f:.5}
+    education:{p:[8.9,1.25,1.05],l:[9.6,1.2,-4.0],m:{p:[8.7,1.3,1.4],l:[10.0,1.2,-1.5]},f:.5},
+    experience:{p:[6.2,1.45,0.9],l:[10.2,0.85,-1.2],m:{p:[8.2,1.4,-0.35],l:[9.4,0.8,1.0]},f:.55},
+    research:{p:[10.25,1.02,0.55],l:[10.42,0.8,-1.0],m:{p:[11.32,1.1,0.5],l:[11.32,0.75,-1.0]},f:.5},
+    skills:{p:[8.75,0.84,-0.2],l:[8.92,0.6,-1.05],m:{p:[9.35,1.05,0.3],l:[9.35,0.66,-1.05]},f:.5},
+    contact:{p:[12.9,1.55,0.55],l:[0,1.15,-0.3],m:{p:[11.6,1.35,0.1],l:[9.2,0.95,-0.3]},f:.5}
   };
   const camP=new THREE.Vector3(10.35,1.12,1.36),camL=new THREE.Vector3(10.35,1.04,-1.5),tP=new THREE.Vector3(),tL=new THREE.Vector3();let tF=.5,tO=0,lens=0;
   function target(){
