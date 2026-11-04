@@ -795,7 +795,7 @@ function initTrain(){
   function pick(e){mv.set(e.clientX/W*2-1,-(e.clientY/H)*2+1);ray.setFromCamera(mv,camera);const h=ray.intersectObjects([...posterMeshes,ada],true);return h[0]?h[0].object:null;}
   canvas.addEventListener('pointermove',e=>{look.set(e.clientX/W*2-1,e.clientY/H*2-1);canvas.classList.toggle('hover',!!pick(e));});
   canvas.addEventListener('click',e=>{const o=pick(e);if(!o)return;
-    if(o.userData.work!==undefined){select(o.userData.work);document.getElementById('works').scrollIntoView({behavior:reduce?'auto':'smooth'});}else if(spot==='stretch'&&phase==='idle')scare=SCARE;else happyT=1.8;});
+    if(o.userData.work!==undefined){select(o.userData.work);document.getElementById('works').scrollIntoView({behavior:reduce?'auto':'smooth'});}else if(spot==='bench'&&phase==='idle')scare=SCARE;else happyT=1.8;});
 
   /* ---------- loop ---------- */
   let last=performance.now(),t=0,blinkAt=2.2,peckAt=2.5;
@@ -804,45 +804,54 @@ function initTrain(){
   const HALF=Math.PI/2, STAND_Y=0.385, SCARE=2.8, calm=reduce?.25:1;
   const SP={sit:{p:[CHAR_X,0.49,WZ+0.47],ry:-0.08,foot:[CHAR_X,-0.5]},
             kneel:{p:[10.62,0.64,-1.17],ry:3.3,foot:[10.62,-0.5]},
-            stretch:{p:[9.12,STAND_Y,0.57],ry:-1.46,foot:[9.12,0.57]}};
+            bench:{p:[9.4,0.49,1.03],ry:-2.3,foot:[9.4,0.5]},
+            wave:{p:[9.29,STAND_Y,-0.245],ry:1.35,foot:[9.29,-0.245]}};
   const armPose=(lx_,ly,lz,rx,ry,rz)=>({alx:lx_,aly:ly,alz:lz,arx:rx,ary:ry,arz:rz});
   const STAND={hipL:HALF,hipR:HALF,kneeL:-HALF,kneeR:-HALF,lean:0,side:0,twist:0,lap:0,leg:0,...armPose(0,0,-.14,0,0,.14)};
   const sitArms=[arms[-1].sit,arms[1].sit];
-  const POSE={sit:()=>({...STAND,hipL:0,hipR:0,kneeL:0,kneeR:0,lap:1,leg:1,...armPose(sitArms[0].x,sitArms[0].y,sitArms[0].z,sitArms[1].x,sitArms[1].y,sitArms[1].z)}),
+  const POSE={bench:()=>POSE.sit(),sit:()=>({...STAND,hipL:0,hipR:0,kneeL:0,kneeR:0,lap:1,leg:1,...armPose(sitArms[0].x,sitArms[0].y,sitArms[0].z,sitArms[1].x,sitArms[1].y,sitArms[1].z)}),
     kneel:()=>({...STAND,kneeL:0,kneeR:0,lean:.03+Math.sin(t*.8)*.012*calm,...armPose(-1.3,0,-.85,-1.75,0,.95)}),
-    stretch:()=>{const sw=Math.sin(t*1.5)*calm,tw=Math.sin(t*.75)*calm;return {...STAND,side:-.2*sw,twist:.22*tw,lean:-.04,...armPose(-.15,0,-2.3+.4*sw,-.15,0,2.3+.4*sw)};},
+    wave:()=>{const w=Math.sin(t*7.5)*calm;return {...STAND,side:.05+.03*w,lean:-.03,...armPose(0,0,-.14,-.12,0,2.45+.38*w)};},
     walk:()=>{const w=Math.sin(t*9.5),l=.46*w;return {...STAND,hipL:HALF+l,hipR:HALF-l,kneeL:-HALF+.6*Math.max(0,-w),kneeR:-HALF+.6*Math.max(0,w),lean:.05,...armPose(-l,0,-.14,l,0,.14)};},
     startle:()=>({...STAND,lean:-.1,...armPose(-.5,0,-1.15,-.5,0,1.15)})};
-  // climbing onto the seat, played forwards to get up and backwards to get down
-  const CLIMB_S=2.6, reach=armPose(-1.05,0,-.22,-1.05,0,.22);
+  // getting onto a seat is a timeline: played forwards to arrive and backwards to leave
+  const reach=armPose(-1.05,0,-.22,-1.05,0,.22);
   const climbKeys=()=>{const k=SP.kneel,x=k.foot[0];return [
     {p:STAND,r:[x,STAND_Y,k.foot[1]]},                                                              // facing the window
     {p:{...STAND,lean:.28,...reach},r:[x,STAND_Y,-.7]},                                             // leans in, hands to the seat
     {p:{...STAND,hipR:.55,kneeR:.92,hipL:1.95,kneeL:-1.3,lean:.42,...reach},r:[x,.58,-.82]},        // one knee up
     {p:{...STAND,hipL:.7,hipR:.7,kneeL:.87,kneeR:.87,lean:.3,...reach},r:[x,.6,-1.0]},              // the other follows
     {p:POSE.kneel(),r:k.p}];};                                                                      // straightens up, hands to the frame
-  function climbAt(u){const K=climbKeys(),n=K.length-1,f=Math.min(u*n,n-1e-6),i=Math.floor(f),e=f-i,w=e*e*(3-2*e),a=K[i],b=K[i+1],p={};
+  // she is shorter than the seat, so she backs up to it, crouches, and hops on
+  const seatKeys=k=>{const[fx,fz]=k.foot,at=f=>[fx+(k.p[0]-fx)*f,fz+(k.p[2]-fz)*f];const m=at(.55),h=at(.9);return [
+    {p:STAND,r:[fx,STAND_Y,fz]},
+    {p:{...STAND,hipL:HALF-.5,hipR:HALF-.5,kneeL:-HALF+.9,kneeR:-HALF+.9,lean:.3,...armPose(.5,0,-.35,.5,0,.35)},r:[m[0],.31,m[1]]},
+    {p:{...STAND,hipL:.5,hipR:.5,kneeL:-.3,kneeR:-.3,lean:.12,...armPose(.4,0,-.3,.4,0,.3)},r:[h[0],.58,h[1]]},
+    {p:POSE.sit(),r:k.p}];};
+  const onSeat=()=>spot==='kneel'?climbKeys():seatKeys(SP[spot]);
+  function climbAt(u){const K=onSeat(),n=K.length-1,f=Math.min(u*n,n-1e-6),i=Math.floor(f),e=f-i,w=e*e*(3-2*e),a=K[i],b=K[i+1],p={};
     for(const c in a.p)p[c]=a.p[c]+(b.p[c]-a.p[c])*w; return {p,r:a.r.map((v,j)=>v+(b.r[j]-v)*w)};}
-  const pose=POSE.sit(), root=new V3(...SP.sit.p); let ry=SP.sit.ry, spot='sit', phase='idle', phT=0, scare=0, climb=0;
+  const pose=POSE.sit(), root=new V3(...SP.sit.p); let ry=SP.sit.ry, spot='sit', phase='idle', phT=0, scare=0, climb=1;
+  const armsOf=q=>({alx:q.alx,aly:q.aly,alz:q.alz,arx:q.arx,ary:q.ary,arz:q.arz});
   const blendAngle=(a,b,k)=>a+(((b-a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI)*k;
   function moveAda(dt){
-    const goal=activeId==='education'?'kneel':activeId==='experience'?'stretch':'sit', hurry=reduce?4:1; phT+=dt;
-    if(phase==='idle'&&goal!==spot){phase=spot==='kneel'?'climb':'leave';phT=0;scare=0;}
+    const goal=activeId==='education'?'kneel':activeId==='experience'?'bench':activeId==='contact'?'wave':'sit', hurry=reduce?4:1; phT+=dt;
+    if(phase==='idle'&&goal!==spot){phase=spot==='wave'?'leave':'climb';phT=0;scare=0;}
     if(phase==='leave'&&phT>.5/hurry)phase='walk';
     const here=SP[spot], gs=SP[goal]; let want=POSE[spot](), rT=here.p, ryT=here.ry;
     if(phase==='leave'){want=STAND;rT=[here.foot[0],STAND_Y,here.foot[1]];}
     if(phase==='climb'){
-      climb=Math.min(Math.max(climb+(goal==='kneel'?1:-1)*dt*hurry/CLIMB_S,0),1); const c=climbAt(climb); want=c.p; rT=c.r; ryT=SP.kneel.ry;
+      climb=Math.min(Math.max(climb+(goal===spot?1:-1)*dt*hurry/(spot==='kneel'?2.6:1.7),0),1); const c=climbAt(climb); want=c.p; rT=c.r; ryT=here.ry;
       if(climb===1)phase='idle'; else if(climb===0)phase='walk';
     }
     if(phase==='walk'){
       const dx=gs.foot[0]-root.x,dz=gs.foot[1]-root.z,d=Math.hypot(dx,dz),st=Math.min(d,1.6*hurry*dt);
       want=POSE.walk(); ryT=d>.01?Math.atan2(dx,dz):ry; rT=null;
       root.x+=d?dx/d*st:0; root.z+=d?dz/d*st:0; root.y+=(STAND_Y+Math.abs(Math.sin(t*9.5))*.018-root.y)*Math.min(dt*9,1);
-      if(d<.02){spot=goal;phase=goal==='kneel'?'climb':'settle';phT=0;}
+      if(d<.02){spot=goal;phase=goal==='wave'?'settle':'climb';climb=0;phT=0;}
     }
     if(phase==='settle'&&phT>.6/hurry)phase='idle';
-    if(scare>0){scare=Math.max(scare-dt,0);if(scare>SCARE-.5)want=POSE.startle();else want=STAND;}
+    if(scare>0){scare=Math.max(scare-dt,0);want=scare>SCARE-.5?{...want,...armsOf(POSE.startle())}:want;}
     const k=Math.min(dt*(phase==='walk'?12:9),1); for(const n in pose)pose[n]+=(want[n]-pose[n])*k;
     if(rT)root.lerp(tP2.set(...rT),Math.min(dt*(phase==='climb'?12:6)*hurry,1));
     ry=blendAngle(ry,ryT,Math.min(dt*8,1));
@@ -886,12 +895,12 @@ function initTrain(){
     const beat=Math.sin(t*Math.PI*1.4);
     head.rotation.x=0.0+beat*0.03*m+look.y*0.06;
     moveAda(dt);
-    const headT=scare>0&&scare<=SCARE-.5?Math.sin((SCARE-.5-scare)*Math.PI*1.4)*.75:look.x*0.3;
+    const headT=scare>0&&scare<=SCARE-.5?Math.sin((SCARE-.5-scare)*Math.PI*1.4)*.75:look.x*0.3+(spot==='bench'&&phase==='idle'?.55:0);
     head.rotation.y+=(headT-head.rotation.y)*Math.min(dt*(scare>0?7:3),1);
     head.rotation.z=0.13+Math.sin(t*0.7)*0.05*m;
     torso.scale.y=1+Math.sin(t*1.2)*0.02;
     happyT=Math.max(happyT-dt,0);
-    if(scare>SCARE-.5) setFace('shock'); else if(happyT>0) setFace('happy'); else if(t>blinkAt){setFace('closed');if(t>blinkAt+0.13){setFace('open');blinkAt=t+2.4+Math.random()*3;}} else setFace('open');
+    if(scare>SCARE-.5) setFace('shock'); else if(happyT>0||(spot==='wave'&&phase==='idle')) setFace('happy'); else if(t>blinkAt){setFace('closed');if(t>blinkAt+0.13){setFace('open');blinkAt=t+2.4+Math.random()*3;}} else setFace('open');
     if(t>peckAt){const k=(t-peckAt)/0.4;ph.rotation.x=Math.sin(Math.min(k,1)*Math.PI)*0.85;if(k>1){ph.rotation.x=0;peckAt=t+1.4+Math.random()*3;}}
     posters.forEach((p,i)=>{const on=activeId==='works'&&i===current;const s=on?1.06:1;p.frame.scale.x+=(s-p.frame.scale.x)*Math.min(dt*6,1);p.frame.scale.y=p.frame.scale.x;p.frame.material.color.set(on?0x7c74ea:0x8d8a90);});
     target();const k=Math.min(dt*(reduce?8:2.2)*(1+camP.distanceTo(tP)/3),1);camP.lerp(tP,k);camL.lerp(tL,k);postU.focus.value+=(tF-postU.focus.value)*k;
