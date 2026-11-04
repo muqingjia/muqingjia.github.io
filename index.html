@@ -261,7 +261,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
       <span class="led"><i>次は</i> MJ07 SKILLS</span>
       <h2>Skills</h2>
       <div class="skillgrp"><b>3D</b><div class="chips"><span class="chip">Blender</span><span class="chip">ZBrush</span><span class="chip">Substance Painter</span><span class="chip">Unity (C#)</span><span class="chip">Unreal Engine 5</span><span class="chip">Motion capture</span></div></div>
-      <div class="skillgrp"><b>CREATIVE CODING</b><div class="chips"><span class="chip">Processing</span><span class="chip">p5.js</span><span class="chip">Arduino</span><span class="chip">TouchDesigner</span><span class="chip">VCV Rack</span></div></div>
+      <div class="skillgrp"><b>CREATIVE CODING</b><div class="chips"><span class="chip">Processing</span><span class="chip">p5.js</span><span class="chip">Arduino</span><span class="chip">TouchDesigner</span><span class="chip">VCV Rack</span><span class="chip">Vibe coding</span></div></div>
       <div class="skillgrp"><b>GENERATIVE AI</b><div class="chips"><span class="chip">ComfyUI</span><span class="chip">Midjourney</span></div></div>
       <div class="skillgrp"><b>DESIGN</b><div class="chips"><span class="chip">Figma</span><span class="chip">Photoshop</span><span class="chip">Illustrator</span><span class="chip">Premiere Pro</span></div></div>
       <div class="skillgrp"><b>LANGUAGES</b><div class="chips"><span class="chip">Chinese (native)</span><span class="chip">English</span><span class="chip">Japanese (learning)</span></div></div>
@@ -416,21 +416,22 @@ function initTrain(){
     g.position.set(Math.random()*160-80,16+Math.random()*12,-80-Math.random()*30);g.userData.s=.3+Math.random()*.4;scene.add(g);clouds.push(g);}
 
   /* ---------- Keio library: the Education stop, seen from the window ---------- */
-  const LMX=12.6, keio=new THREE.Group(); keio.position.set(LMX,-0.1,-8); keio.scale.setScalar(.76); keio.visible=false; scene.add(keio);
-  const lit=c=>outMat(c,{emissive:c,emissiveIntensity:.55});
-  const brick=lit(0xb8432f), brick2=lit(0xa63a2a), stone=lit(0xe6dccb), slate=lit(0x3d3b47), glass=lit(0x9db8c2), dark=lit(0x2b2730), lawn=lit(0x55704a), hedge=lit(0x3f5a3c);
+  const LMX=12.6, keio=new THREE.Group(); keio.position.set(LMX,-0.1,-8); keio.scale.setScalar(.58); keio.visible=false; scene.add(keio);
+  const lit=c=>outMat(c,{emissive:c,emissiveIntensity:.4});
+  const brick=lit(0xa2604f), brick2=lit(0x925646), stone=lit(0xcbbfae), slate=lit(0x2f2d38), glass=lit(0x8797a0), dark=lit(0x2b2730), lawn=lit(0x5f6f52), hedge=lit(0x48584a);
   const prism=(w,h,d,mat,x,y,z)=>{const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(0,h);sh.closePath();return put(new THREE.ExtrudeGeometry(sh,{depth:d,bevelEnabled:false}),mat,x,y,z-d/2,keio,false);};
   const arch=(w,h,mat,x,y,z)=>{const sh=new THREE.Shape();sh.moveTo(-w/2,0);sh.lineTo(w/2,0);sh.lineTo(w/2,h-w/2);sh.absarc(0,h-w/2,w/2,0,Math.PI,false);sh.lineTo(-w/2,0);return put(new THREE.ShapeGeometry(sh,8),mat,x,y,z,keio,false);};
   const win=(w,h,x,y,z)=>{arch(w+.09,h+.08,stone,x,y-.04,z);arch(w,h,glass,x,y,z+.006);box(.018,h*.8,.004,dark,x,y+h*.4,z+.012,keio,false);};
-  // roofs run along the wall, so the slate shows above the gables
+  // slate slabs on both slopes of each gable, plus a ridge roof along the main block
+  const gableRoof=(w,h,d,x,y,z)=>{const len=Math.hypot(w/2,h)+.1,a=Math.atan2(h,w/2);for(const s of [-1,1]){const r=box(len,.07,d,slate,x+s*w/4,y+h/2+.04,z,keio,false);r.rotation.z=-s*a;}};
   const roof=(w,h,d,x,y,z)=>{const r=prism(d,h,w,slate,x,y,z);r.rotation.y=Math.PI/2;r.position.set(x-w/2,y,z);return r;};
   // ground, lawn and hedge hide the base and the street behind
   box(26,7,7,lawn,0,-3.5,1,keio,false); box(8.4,.16,.2,hedge,.3,.08,2.3,keio,false); box(2.4,.03,2,dark,-.1,.01,1.6,keio,false);
   // main block and wings
   box(2.7,2.05,1.1,brick,.3,1.02,0,keio,false); roof(2.7,.62,1.2,.3,2.05,0);
-  box(1.5,2.2,1.1,brick,-1.75,1.1,0,keio,false); prism(1.5,.82,1.12,brick2,-1.75,2.2,0); roof(1.5,.5,1.1,-1.75,2.2,-.25);
-  box(1,1.85,1,brick2,-3,.92,-.05,keio,false); prism(1.02,.66,1.02,brick2,-3,1.85,-.05); roof(1,.42,.9,-3,1.85,-.3);
-  prism(1.42,.94,.18,brick,-.2,2.05,.56); prism(1.54,1.02,.1,stone,-.2,2.02,.53); box(.34,.3,.02,stone,-.2,2.28,.66,keio,false);
+  box(1.5,2.2,1.1,brick,-1.75,1.1,0,keio,false); prism(1.5,.82,1.12,brick2,-1.75,2.2,0); gableRoof(1.5,.82,1.22,-1.75,2.2,0);
+  box(1,1.85,1,brick2,-3,.92,-.05,keio,false); prism(1.02,.66,1.02,brick2,-3,1.85,-.05); gableRoof(1.02,.66,1.12,-3,1.85,-.05);
+  prism(1.42,.94,.9,brick,-.2,2.05,.2); gableRoof(1.42,.94,1,-.2,2.05,.2); box(.34,.3,.02,stone,-.2,2.28,.66,keio,false);
   box(4.1,.06,.03,stone,-.78,.48,.57,keio,false); box(5.4,.05,.03,stone,-.8,2.04,.57,keio,false);
   // left wings: tall lancet windows and the clock
   [-2.15,-1.75,-1.35].forEach(x=>{win(.27,.8,x,1.1,.555);box(.27,.07,.01,stone,x,.84,.555,keio,false);for(const y of [.14,.5])win(.22,.26,x,y,.555);});
@@ -446,7 +447,7 @@ function initTrain(){
   put(new THREE.CylinderGeometry(.5,.9,.34,8),slate,0,3.52,0,tower,false);
   [2.25,3.04].forEach(x=>{win(.25,.72,x,2.02,.8);win(.21,.3,x,.42,.8);win(.21,.4,x,1.27,.8);});
   // autumn trees either side
-  [[-4.3,.42,1.3,.62],[3.95,.5,1.2,.8],[4.75,.32,1.4,.7]].forEach(([x,y,z,r],i)=>{box(.1,.5,.1,dark,x,y-.2,z,keio,false);put(new THREE.IcosahedronGeometry(r,0),lit(i?0xd9a13b:0x8f9a4e),x,y+r*.72,z,keio,false);});
+  [[-4.3,.42,1.3,.62],[3.95,.5,1.2,.8],[4.75,.32,1.4,.7]].forEach(([x,y,z,r],i)=>{box(.1,.5,.1,dark,x,y-.2,z,keio,false);put(new THREE.IcosahedronGeometry(r,0),lit(i?0xb08a4c:0x7d8455),x,y+r*.72,z,keio,false);});
 
   /* ---------- lights ---------- */
   const hemi=new THREE.HemisphereLight(0xffe9d2,0x7d6a6a,0.62); scene.add(hemi);
