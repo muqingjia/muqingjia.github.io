@@ -610,7 +610,7 @@ function initTrain(){
   const outlineM=new THREE.MeshBasicMaterial({color:0x2a1f22,side:THREE.BackSide,fog:false});
   const outline=(m,k=1.04)=>{const o=new THREE.Mesh(m.geometry,outlineM);o.scale.setScalar(k);m.add(o);return m;};
   const V3=THREE.Vector3;
-  const gameG=new THREE.Group(); gameG.position.set(0,0.12,0.25); gameG.rotation.set(-1.28,0,0); gameG.scale.setScalar(1.3); car.add(gameG);
+  const gameG=new THREE.Group(); gameG.position.set(0,0.12,0.25); gameG.rotation.set(-1.4,0,Math.PI); gameG.scale.setScalar(1.3); car.add(gameG);
   const arms={};
   for(const s of [-1,1]){
     const sh=new V3(s*0.15,0.28,0), hand=new V3(s*0.13,0.115,0.24), dir=hand.clone().sub(sh), len=dir.length();
@@ -628,9 +628,25 @@ function initTrain(){
     const body=put(ex(rrs(0.13,0.082,0.008),0.016),bodyM,0,0,-0.008,gameG);
     const grip=(x,m,flip)=>{const g=put(ex(rrs(0.046,0.082,0.02),0.022),m,x,0,-0.011,gameG);return g;};
     grip(-0.086,gl); grip(0.086,gr);
-    const scr=ctex(48,28,(g)=>{g.fillStyle='#9fd3e6';g.fillRect(0,0,48,28);g.fillStyle='#ffe3a8';g.fillRect(36,3,6,6);
-      g.fillStyle='#7c74ea';g.fillRect(0,20,48,8);g.fillStyle='#f6f1ea';g.fillRect(8,12,22,8);g.fillStyle='#2f5a4f';g.fillRect(8,17,22,2);
-      g.fillStyle='#9fd3e6';for(let x=10;x<28;x+=5)g.fillRect(x,13,3,3);g.fillStyle='#ff8fa8';g.fillRect(31,15,3,5);g.fillStyle='#fff';g.fillRect(2,4,2,1);g.fillRect(20,6,2,1);});
+    const scr=ctex(96,56,(g)=>{
+      const poly=(c,p)=>{g.fillStyle=c;g.beginPath();p.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();};
+      const sky=g.createLinearGradient(0,0,96,18);sky.addColorStop(0,'#fff6c9');sky.addColorStop(.45,'#bfe9cf');sky.addColorStop(1,'#63c4cc');g.fillStyle=sky;g.fillRect(0,0,96,30);
+      g.fillStyle='#f4fbe6';g.fillRect(52,5,14,1);g.fillRect(48,6,10,1);g.fillRect(74,9,12,1);g.fillRect(70,10,9,1);
+      poly('#6f8fb8',[[0,27],[14,23],[26,14],[30,12],[34,15],[46,23],[60,21],[70,18],[78,21],[96,23],[96,32],[0,32]]);
+      poly('#e8eef2',[[27,14],[30,12],[33,14.5],[31,15],[30,14],[28,15]]);
+      poly('#8ba5c0',[[0,29],[22,26],[50,27],[76,24],[96,27],[96,33],[0,33]]);
+      g.fillStyle='#8fb24c';g.fillRect(0,31,96,25);
+      g.fillStyle='#a9c65a';g.fillRect(0,31,50,3);g.fillRect(58,33,38,2);g.fillStyle='#7ea146';g.fillRect(8,41,40,2);
+      g.fillStyle='#35663d';[[6,36,3],[11,35,4],[17,37,3],[24,35,3],[30,38,4],[37,36,3],[44,39,3],[12,42,4],[20,43,3],[28,44,4],[70,35,3],[76,36,4],[84,35,3],[90,37,3]].forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill();});
+      g.fillStyle='#4f8a48';[[10,34,2],[29,37,2],[75,35,2],[12,41,2]].forEach(([x,y,r])=>{g.beginPath();g.arc(x,y,r,0,7);g.fill();});
+      poly('#c8e8e0',[[0,46],[9,47],[14,52],[12,56],[0,56]]);
+      poly('#d9a544',[[24,56],[46,46],[62,42],[76,44],[80,50],[72,56]]);
+      poly('#b98434',[[62,42],[76,44],[80,50],[72,56],[64,56],[68,48]]);
+      poly('#a7d84e',[[66,56],[76,47],[84,43],[96,41],[96,56]]);
+      g.fillStyle='#7fb83c';for(let x=68;x<96;x+=4)g.fillRect(x,52-(x%3),1,4);
+      g.fillStyle='#f3ece2';g.fillRect(61,37,6,6);g.fillStyle='#1d1418';g.fillRect(61,34,6,6);g.fillRect(60,36,1,5);g.fillRect(67,36,1,5);
+      g.fillStyle='#6b4f3f';g.fillRect(60,31,8,4);g.fillRect(60,29,2,2);g.fillRect(66,29,2,2);g.fillStyle='#d9b44a';g.fillRect(61,40,6,1);
+      g.fillStyle='#3a3340';g.fillRect(58,43,5,1);g.fillRect(65,43,4,1);});
     const screen=new THREE.Mesh(new THREE.PlaneGeometry(0.112,0.066),B(0xffffff,{map:scr}));screen.position.z=0.0085;gameG.add(screen);
     const stick=(x,y)=>{const k=put(C(0.009,0.01,0.01,8),knob,x,y,0.016,gameG,false);k.rotation.x=Math.PI/2;const t=put(C(0.011,0.011,0.004,10),knobTop,x,y,0.022,gameG,false);t.rotation.x=Math.PI/2;};
     stick(-0.088,0.018); stick(0.088,-0.016);
@@ -646,10 +662,24 @@ function initTrain(){
   const macScr=ctex(60,40,(g)=>{g.fillStyle='#20233a';g.fillRect(0,0,60,40);g.fillStyle='#8fa8ff';g.fillRect(5,6,30,3);g.fillStyle='#e7e4ff';for(let y=12;y<36;y+=5)g.fillRect(5,y,12+(y*7)%34,2);},false);
   const macGlass=new THREE.Mesh(new THREE.PlaneGeometry(0.27,0.18),B(0xffffff,{map:macScr})); macGlass.rotation.x=Math.PI/2; macGlass.position.set(0,-0.001,-0.105); macLid.add(macGlass);
   const macDot=new THREE.Mesh(new THREE.CircleGeometry(0.016,12),B(0xf4f4f6)); macDot.rotation.x=-Math.PI/2; macDot.position.set(0,0.009,-0.1); macLid.add(macDot);
+  // book: kept on the seat beside her. The spine is the group's origin, bkL closes over bkR
+  const bookG=new THREE.Group(), bkL=new THREE.Group(), bkR=new THREE.Group(), bkLeaf=new THREE.Group(); bookG.add(bkL,bkR,bkLeaf); car.add(bookG);
+  {
+    const PW=0.095, PH=0.135, coverM=L(0x5d55b8), pageM=L(0xf1e8d6);
+    const textT=ctex(38,54,(g)=>{g.fillStyle='#f6eedd';g.fillRect(0,0,38,54);g.fillStyle='#a79c94';for(let y=5;y<50;y+=4)g.fillRect(4,y,y%3?30:22,1);});
+    const textM=L(0xffffff,{map:textT,side:THREE.DoubleSide});
+    for(const [h,s] of [[bkL,-1],[bkR,1]]){
+      box(PW+0.006,PH+0.01,0.003,coverM,s*(PW+0.006)/2,0,-0.0015,h);
+      box(PW,PH,0.011,pageM,s*PW/2,0,0.0055,h);
+      put(new THREE.PlaneGeometry(PW-0.008,PH-0.008),textM,s*PW/2,0,0.0116,h,false);
+    }
+    const leafG=new THREE.PlaneGeometry(PW-0.004,PH-0.004); leafG.translate((PW-0.004)/2,0,0);
+    put(leafG,textM,0,0,0,bkLeaf,false); bkLeaf.position.z=0.0125; bkLeaf.visible=false;
+  }
   // drink
-  put(C(0.04,0.032,0.11,8),new THREE.MeshLambertMaterial({color:0xffbccb,transparent:true,opacity:.9,fog:false}),CHAR_X+0.3,0.545,WZ+0.47,car);
-  put(new THREE.SphereGeometry(0.04,8,4,0,Math.PI*2,0,Math.PI/2),L(0xffffff),CHAR_X+0.3,0.6,WZ+0.47,car);
-  put(C(0.006,0.006,0.12,4),L(0x7c74ea),CHAR_X+0.31,0.65,WZ+0.47,car).rotation.z=-0.2;
+  put(C(0.04,0.032,0.11,8),new THREE.MeshLambertMaterial({color:0xffbccb,transparent:true,opacity:.9,fog:false}),CHAR_X+0.54,0.545,WZ+0.47,car);
+  put(new THREE.SphereGeometry(0.04,8,4,0,Math.PI*2,0,Math.PI/2),L(0xffffff),CHAR_X+0.54,0.6,WZ+0.47,car);
+  put(C(0.006,0.006,0.12,4),L(0x7c74ea),CHAR_X+0.55,0.65,WZ+0.47,car).rotation.z=-0.2;
 
   // head
   const head=new THREE.Group(); head.position.set(0,0.565,0.015); upper.add(head);
@@ -714,7 +744,7 @@ function initTrain(){
   for(const s of [-1,1]){const e=outline(put(new THREE.ConeGeometry(0.075,0.12,4),hatM,s*0.155,0.27,0.02,hat),1.06);e.rotation.set(0.1,Math.PI/4,-s*0.38);}
 
   /* ---------- pigeon ---------- */
-  const pig=new THREE.Group(); pig.position.set(9.35,0.49,WZ+0.45); pig.rotation.y=-1.0; car.add(pig);
+  const pig=new THREE.Group(); pig.position.set(10.56,0.49,WZ+0.45); pig.rotation.y=-1.0; car.add(pig);
   const pgM=L(0x7f879c), pgD=L(0x5f6579);
   put(S(0.075,10,8),pgM,0,0.075,0,pig).scale.set(0.82,0.78,1.4);
   for(const s of [-1,1]){const wg=put(S(0.06,8,6),pgD,s*0.05,0.085,-0.02,pig);wg.scale.set(0.35,0.6,1.35);
@@ -773,7 +803,7 @@ function initTrain(){
     about:{p:[10.95,1.12,-0.18],l:[11.12,1.04,-1.05],m:{p:[11.3,1.12,-0.25],l:[11.32,0.98,-1.05]},f:.45},
     education:{p:[8.9,1.25,1.05],l:[9.6,1.2,-4.0],f:.5},
     experience:{p:[6.2,1.45,0.9],l:[10.2,0.85,-1.2],f:.55},
-    research:{p:[10.8,1.0,-0.02],l:[11.02,0.7,-0.95],m:{p:[11.32,0.95,-0.4],l:[11.32,0.6,-0.95]},f:.5},
+    research:{p:[10.25,1.02,0.55],l:[10.42,0.8,-1.0],m:{p:[11.32,0.95,-0.4],l:[11.32,0.6,-0.95]},f:.5},
     skills:{p:[8.75,0.84,-0.2],l:[8.92,0.6,-1.05],m:{p:[9.35,0.85,-0.3],l:[9.35,0.5,-1.05]},f:.5},
     contact:{p:[12.9,1.55,0.55],l:[0,1.15,-0.3],f:.5}
   };
@@ -807,7 +837,7 @@ function initTrain(){
     if(o.userData.work!==undefined){select(o.userData.work);document.getElementById('works').scrollIntoView({behavior:reduce?'auto':'smooth'});}else if(spot==='bench'&&phase==='idle')scare=SCARE;else happyT=1.8;});
 
   /* ---------- loop ---------- */
-  let last=performance.now(),t=0,blinkAt=2.2,peckAt=2.5;
+  let last=performance.now(),t=0,blinkAt=2.2,peckAt=2.5,pigT=10.56,pigW=0,pigH=0,pigS=10.56,pigE=10.56;
   let lx=60,nod=0,stop='away',go=1,keioV=.8;
   const KEIO_START=4.2, SETTLE=.8, KEIO_ETA={sit:6.4,bench:10,wave:4.5};   // seconds until Ada reaches the window
   /* ---------- Ada walks: one rig, a target pose per stop, and leave > walk > settle between them ---------- */
@@ -839,9 +869,9 @@ function initTrain(){
     {p:{...STAND,hipL:.5,hipR:.5,kneeL:-.3,kneeR:-.3,lean:.12,...armPose(.4,0,-.3,.4,0,.3)},r:[h[0],.58,h[1]]},
     {p:POSE.rest(),r:k.p}];};
   // the Switch lives on its own: held in her hands, or set down on the seat at her right when she gets up
-  const GRIP_POS=new V3(0,.12,.25), GRIP_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.28,0,0)),
-        SEAT_POS=new V3(CHAR_X-.3,.51,WZ+.52), SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,.35)),
-        qA=new THREE.Quaternion(), qU=new THREE.Quaternion(), heldP=new V3(), HANDS_S=1.25;
+  const GRIP_POS=new V3(0,.12,.25), GRIP_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.4,0,Math.PI)),
+        SEAT_POS=new V3(CHAR_X-.3,.51,WZ+.52), SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,.35+Math.PI)),
+        qA=new THREE.Quaternion(), qU=new THREE.Quaternion(), heldP=new V3(), HANDS_S=1.25, BOOK_S=1.5;
   const ease01=x=>x*x*(3-2*x), aimQ=new THREE.Quaternion(), poseQ=new THREE.Quaternion(), DOWN=new V3(0,-1,0), aimD=new V3(), aimT=new V3();
   // turns an arm so the hand really reaches a point in the car, w blends it in
   function aimArm(s,x,y,z,w){if(w<=0)return;const a=arms[s].g;aimT.set(x,y,z).sub(ada.position).applyQuaternion(qA.clone().invert()).applyQuaternion(qU.clone().invert());
@@ -850,6 +880,17 @@ function initTrain(){
     for(const n of ['alx','aly','alz','arx','ary','arz'])p[n]=grip[n]+(rest[n]-grip[n])*c;
     p.alx+=(0-p.alx)*w;p.aly+=(0-p.aly)*w;p.alz+=(-.66-p.alz)*w;   // right arm reaches down to the seat
     p.twist=-.16*w;p.lean=.05*w;return p;}
+  // the book is the other way round: reached for on her left, read with her head down
+  const BOOK_SEAT=new V3(CHAR_X+.25,.512,WZ+.48), BOOK_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,-.3)),
+        BOOK_HOLD=new V3(0,.17,.27), BOOK_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.21,0,Math.PI)), bookP=new V3();
+  function bookPose(c){const p=POSE.rest(),w=Math.sin(c*Math.PI);p.twist=.16*w;p.lean=.05*w+.04*c;return p;}
+  function placeBook(c){
+    bookP.copy(BOOK_HOLD).applyQuaternion(qU).applyQuaternion(qA).add(ada.position);
+    const e=ease01(Math.min(Math.max((c-.25)/.5,0),1)),o=ease01(Math.max((c-.7)/.3,0));
+    bookG.position.lerpVectors(BOOK_SEAT,bookP,e);bookG.position.y+=Math.sin(e*Math.PI)*.05;
+    bookG.quaternion.copy(BOOK_SEAT_Q).slerp(qA.clone().multiply(qU).multiply(BOOK_Q),e);
+    bkL.rotation.y=Math.PI*(1-o)+.18*o;bkL.position.z=.0262*(1-o);bkR.rotation.y=-.18*o;
+    const f=c===1?(t%3.6)/.9:1;bkLeaf.visible=f<1;if(f<1)bkLeaf.rotation.y=-.18-(Math.PI-.36)*ease01(f);}
   function placeSwitch(c){
     qA.setFromEuler(ada.rotation);qU.setFromEuler(upper.rotation);
     heldP.copy(GRIP_POS).applyQuaternion(qU).applyQuaternion(qA).add(ada.position);
@@ -868,21 +909,26 @@ function initTrain(){
   const onSeat=()=>spot==='kneel'?climbKeys():seatKeys(SP[spot]);
   function climbAt(u){const K=onSeat(),n=K.length-1,f=Math.min(u*n,n-1e-6),i=Math.floor(f),e=f-i,w=e*e*(3-2*e),a=K[i],b=K[i+1],p={};
     for(const c in a.p)p[c]=a.p[c]+(b.p[c]-a.p[c])*w; return {p,r:a.r.map((v,j)=>v+(b.r[j]-v)*w)};}
-  const pose=POSE.sit(), root=new V3(...SP.sit.p); let ry=SP.sit.ry, spot='sit', phase='idle', phT=0, scare=0, climb=1, stow=0, macC=0;
+  const pose=POSE.sit(), root=new V3(...SP.sit.p); let ry=SP.sit.ry, spot='sit', phase='idle', phT=0, scare=0, climb=1, stow=0, macC=0, read=0;
   const blendAngle=(a,b,k)=>a+(((b-a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI)*k;
   function moveAda(dt){
-    const goal=activeId==='education'?'kneel':activeId==='experience'?'bench':activeId==='contact'?'wave':'sit', hurry=reduce?4:1; phT+=dt;
-    if(phase==='idle'&&goal!==spot){phase=spot==='wave'?'leave':spot==='sit'?'hands':spot==='bench'?'open':'climb';phT=0;scare=0;}
+    const goal=activeId==='education'?'kneel':activeId==='experience'?'bench':activeId==='contact'?'wave':'sit', hurry=reduce?4:1, reading=activeId==='research'&&goal==='sit'; phT+=dt;
+    if(phase==='idle'&&spot==='sit'&&goal==='sit'&&(reading?read<1:read>0))phase=stow<1&&!read?'hands':'book';
+    if(phase==='idle'&&goal!==spot){phase=spot==='wave'?'leave':spot==='sit'?(read>0?'book':'hands'):spot==='bench'?'open':'climb';phT=0;scare=0;}
     if(phase==='leave'&&phT>.5/hurry)phase='walk';
-    const here=SP[spot], gs=SP[goal]; let want=POSE[spot](), rT=here.p, ryT=here.ry;
+    const here=SP[spot], gs=SP[goal]; let want=spot==='sit'&&read>0?bookPose(read):POSE[spot](), rT=here.p, ryT=here.ry;
     if(phase==='leave'){want=STAND;rT=[here.foot[0],STAND_Y,here.foot[1]];}
     if(phase==='climb'){
       climb=Math.min(Math.max(climb+(goal===spot?1:-1)*dt*hurry/(spot==='kneel'?2.6:1.7),0),1); const c=climbAt(climb); want=c.p; rT=c.r; ryT=here.ry;
       if(climb===1)phase=spot==='sit'&&stow>0?'hands':spot==='bench'?'open':'idle'; else if(climb===0)phase='walk';
     }
     if(phase==='hands'){
-      stow=Math.min(Math.max(stow+(goal==='sit'?-1:1)*dt*hurry/HANDS_S,0),1); want=handsPose(stow);
-      if(stow===0)phase='idle'; else if(stow===1&&goal!=='sit')phase='climb';
+      stow=Math.min(Math.max(stow+(goal==='sit'&&!reading?-1:1)*dt*hurry/HANDS_S,0),1); want=handsPose(stow);
+      if(stow===0)phase='idle'; else if(stow===1&&reading)phase='book'; else if(stow===1&&goal!=='sit')phase='climb';
+    }
+    if(phase==='book'){
+      read=Math.min(Math.max(read+(reading?1:-1)*dt*hurry/BOOK_S,0),1); want=bookPose(read);
+      if(read===1)phase='idle'; else if(read===0)phase=goal==='sit'?'hands':'climb';
     }
     if(phase==='open'){
       macC=Math.min(Math.max(macC+(goal==='bench'?1:-1)*dt*hurry/2.8,.5),1); want=POSE.bench();
@@ -922,7 +968,9 @@ function initTrain(){
     ada.position.set(root.x,root.y+hop+lift,root.z); ada.rotation.y=ry;
     legs[-1].hip.rotation.x=pose.hipL; legs[1].hip.rotation.x=pose.hipR; legs[-1].knee.rotation.x=pose.kneeL; legs[1].knee.rotation.x=pose.kneeR;
     arms[-1].g.rotation.set(pose.alx,pose.aly,pose.alz); arms[1].g.rotation.set(pose.arx,pose.ary,pose.arz);
-    lap.visible=pose.lap>.5; lap.scale.z=Math.max(pose.lap,.01); placeSwitch(stow); placeMac(macC);
+    lap.visible=pose.lap>.5; lap.scale.z=Math.max(pose.lap,.01); placeSwitch(stow); placeMac(macC); placeBook(read);
+    if(read>0){aimArm(1,bookG.position.x,bookG.position.y,bookG.position.z,ease01(Math.min(read*4,1)));
+      for(const n of [-1,1]){aimT.set(-n*.085,0,0).applyQuaternion(bookG.quaternion).add(bookG.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,ease01(Math.max((read-.62)/.38,0)));}}
     if(phase==='hands')aimArm(-1,gameG.position.x-.1*(1-stow),gameG.position.y,gameG.position.z,ease01(Math.min(stow*5,1))*ease01(Math.min((1-stow)*4,1)));
     const holdMac=macC<=.5?ease01(Math.min(macC*8,1)):1-ease01(Math.min((macC-.5)*2.5,1));
     for(const n of [-1,1]){aimT.set(n*.13,0,0).applyQuaternion(mac.quaternion).add(mac.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,holdMac);}
@@ -952,7 +1000,7 @@ function initTrain(){
     dg.attributes.position.needsUpdate=true;
     // Ada
     const beat=Math.sin(t*Math.PI*1.4);
-    nod+=((spot==='bench'&&phase==='idle'?.42:0)-nod)*Math.min(dt*4,1);
+    nod+=((spot==='bench'&&phase==='idle'?.42:read*.34)-nod)*Math.min(dt*4,1);
     head.rotation.x=nod+beat*0.03*m+look.y*0.06;
     moveAda(dt);
     const headT=scare>0&&scare<=SCARE-.5?Math.sin((SCARE-.5-scare)*Math.PI*1.4)*.75:look.x*0.3-(phase==='hands'?Math.sin(stow*Math.PI)*.5:0);
@@ -961,6 +1009,14 @@ function initTrain(){
     torso.scale.y=1+Math.sin(t*1.2)*0.02;
     happyT=Math.max(happyT-dt,0);
     if(scare>SCARE-.5) setFace('shock'); else if(happyT>0||(spot==='wave'&&phase==='idle')) setFace('happy'); else if(t>blinkAt){setFace('closed');if(t>blinkAt+0.13){setFace('open');blinkAt=t+2.4+Math.random()*3;}} else setFace('open');
+    // the pigeon follows the ride in small hops, out of Ada's way while she is at the window
+    const pigGoal=(!activeId||activeId==='top'||activeId==='about')&&spot!=='kneel'?10.56:activeId==='skills'||activeId==='contact'?9.35:9.95;
+    if(pigGoal!==pigT){pigT=pigGoal;pigW=.5;} pigW=Math.max(pigW-dt,0);
+    const pigD=pigT-pig.position.x, hopping=Math.abs(pigD)>.005||pigH>0;
+    if(hopping&&!pigW){if(!pigH){pigS=pig.position.x;pigE=pigS+Math.sign(pigD)*Math.min(.14,Math.abs(pigD));}
+      pigH+=dt/.34;const a=Math.min(pigH,1);pig.position.x=pigS+(pigE-pigS)*a;pig.position.y=.49+Math.sin(a*Math.PI)*.06;if(pigH>1.5)pigH=0;}
+    pig.rotation.y=blendAngle(pig.rotation.y,hopping?Math.sign(pigE-pigS||pigD)*HALF:-1,Math.min(dt*8,1));
+    if(hopping&&t<peckAt)peckAt=Math.max(peckAt,t+.8);
     if(t>peckAt){const k=(t-peckAt)/0.4;ph.rotation.x=Math.sin(Math.min(k,1)*Math.PI)*0.85;if(k>1){ph.rotation.x=0;peckAt=t+1.4+Math.random()*3;}}
     posters.forEach((p,i)=>{const on=activeId==='works'&&i===current;const s=on?1.06:1;p.frame.scale.x+=(s-p.frame.scale.x)*Math.min(dt*6,1);p.frame.scale.y=p.frame.scale.x;p.frame.material.color.set(on?0x7c74ea:0x8d8a90);});
     target();const k=Math.min(dt*(reduce?8:2.2)*(1+camP.distanceTo(tP)/3),1);camP.lerp(tP,k);camL.lerp(tL,k);postU.focus.value+=(tF-postU.focus.value)*k;
@@ -972,7 +1028,7 @@ function initTrain(){
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-  window.__train={camera,scene,ada,head,keio,trainState:()=>({stop,lx,go,keioV}),adaState:()=>({spot,phase,climb,stow,macC})};
+  window.__train={camera,scene,ada,head,keio,trainState:()=>({stop,lx,go,keioV}),adaState:()=>({spot,phase,climb,stow,macC,read})};
 }
 
 if(typeof THREE!=='undefined'){ try{ initTrain(); }catch(e){ console.warn('train',e); } }
