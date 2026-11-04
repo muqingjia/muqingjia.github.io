@@ -35,7 +35,7 @@
   --nav:91px;
 }
 html{background:var(--sky)}
-body{background:linear-gradient(180deg,#9fb8ff,#ffd9b8);background-attachment:fixed;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;overflow-x:hidden}
+body{-webkit-user-select:none;user-select:none;cursor:default;background:linear-gradient(180deg,#9fb8ff,#ffd9b8);background-attachment:fixed;color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;overflow-x:hidden}
 #scene{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;image-rendering:pixelated}
 #scene.hover{cursor:pointer}
 a{color:inherit;text-decoration:none;transition:color .15s}
@@ -46,7 +46,7 @@ h1,h2,h3{font-family:var(--display);font-weight:700;margin:0;text-wrap:balance;l
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--led-bg)}
 nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--paper);border-bottom:3px solid var(--line);box-shadow:0 6px 20px -12px rgba(39,36,58,.5)}
 nav .in{display:flex;align-items:center;gap:14px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.linebadge{display:grid;justify-items:center;gap:1px;font-family:var(--display);font-weight:700;font-size:.72rem;color:var(--ink);white-space:nowrap;padding-right:14px;border-right:1px solid var(--rule)}
+.linebadge{text-decoration:none;display:grid;justify-items:center;gap:1px;font-family:var(--display);font-weight:700;font-size:.72rem;color:var(--ink);white-space:nowrap;padding-right:14px;border-right:1px solid var(--rule)}
 .linebadge b{display:grid;place-content:center;width:34px;height:34px;border:4px solid var(--line);border-radius:8px;font-size:.9rem}
 @media (max-width:720px){.linebadge{display:none}}
 .route{display:flex;list-style:none;margin:0;padding:6px 0 6px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
@@ -97,6 +97,7 @@ main{position:relative;z-index:1;pointer-events:none}
 @keyframes hintpulse{50%{opacity:.45}}
 @media (max-width:720px){.hero{align-content:end;padding-bottom:56px}.scrollhint{bottom:20px;font-size:.8rem}}
 .card h1{font-size:clamp(2rem,4.6vw,2.7rem);line-height:1.12}
+#top{scroll-margin-top:100vh}
 .lede{font-size:1.05rem}
 .hint{font-family:var(--pixel);font-size:.82rem;color:var(--line);letter-spacing:.04em}
 
@@ -144,7 +145,7 @@ main{position:relative;z-index:1;pointer-events:none}
 .skillgrp{display:grid;gap:6px}
 .skillgrp b{font-family:var(--pixel);font-weight:400;font-size:.8rem;color:var(--muted)}
 
-.email{font-family:var(--display);font-weight:700;font-size:clamp(1.2rem,4.4vw,1.8rem);user-select:all;word-break:break-all}
+.email{font-family:var(--display);font-weight:700;font-size:clamp(1.2rem,4.4vw,1.8rem);word-break:break-all}
 footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font-family:var(--pixel);font-size:.8rem;color:#e8e6e3;text-shadow:0 1px 4px rgba(39,36,58,.5);pointer-events:none}
 .end{padding-bottom:32vh}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.scrollhint i{animation:none}}
@@ -154,7 +155,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
 <nav aria-label="Stops">
   <div class="in">
-    <span class="linebadge" aria-hidden="true"><b>MJ</b>沐晴線</span>
+    <a class="linebadge" href="#top" aria-label="Back to top"><b>MJ</b>沐晴線</a>
     <ol class="route" id="navlist"><li><a href="#top"><span class="no">MJ01</span><span class="dot"></span><span class="jp">はじまり</span><span class="en">Start</span></a></li><li><a href="#about"><span class="no">MJ02</span><span class="dot"></span><span class="jp">自己紹介</span><span class="en">About</span></a></li><li><a href="#education"><span class="no">MJ03</span><span class="dot"></span><span class="jp">学歴</span><span class="en">Education</span></a></li><li><a href="#experience"><span class="no">MJ04</span><span class="dot"></span><span class="jp">職歴</span><span class="en">Experience</span></a></li><li><a href="#works"><span class="no">MJ05</span><span class="dot"></span><span class="jp">作品</span><span class="en">Works</span></a></li><li><a href="#research"><span class="no">MJ06</span><span class="dot"></span><span class="jp">研究</span><span class="en">Research</span></a></li><li><a href="#skills"><span class="no">MJ07</span><span class="dot"></span><span class="jp">スキル</span><span class="en">Skills</span></a></li><li><a href="#contact"><span class="no">MJ08</span><span class="dot"></span><span class="jp">連絡</span><span class="en">Contact</span></a></li></ol>
   </div>
 </nav>
@@ -164,7 +165,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
     <div class="card">
       <span class="led"><i>始発</i> MJ01 START</span>
       <h1>Muqing (Ada) Jia</h1>
-      <p class="lede">Media Designer at the <a class="hl" href="https://www.embodiedmedia.org/" target="_blank" rel="noopener">Embodied Media</a> Project, Keio University Graduate School of Media Design. I explore the possibilities of interaction through technology, <span class="hl">immersive environments</span>, and <span class="hl">human-centered experiences</span>.</p>
+      <p class="lede">Media Designer at the <a class="hl" href="https://www.embodiedmedia.org/" target="_blank" rel="noopener">Embodied Media Project</a>, Keio University Graduate School of Media Design, exploring interactions through technology, <span class="hl">immersive environments</span>, and <span class="hl">human-centered design</span>.</p>
       <div class="chips"><span class="chip">Interaction Design</span><span class="chip">XR &amp; Immersive Experiences</span><span class="chip">Creative Technology</span></div>
     </div>
     <span class="scrollhint"><i>▼</i> Scroll to ride the line</span>
@@ -172,7 +173,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop" id="about" data-stop="MJ02 ABOUT">
     <div class="card">
-      <span class="led"><i>次は</i> MJ02 ABOUT</span>
+      <span class="led"><i>ただいま</i> MJ02 ABOUT</span>
       <h2>About</h2>
       <p>I studied Intermedia Art at the <a class="hl" href="https://www.caa.edu.cn/" target="_blank" rel="noopener">China Academy of Art</a>, where I explored 3D experiences, sound, audiovisual art, and virtual environments.</p>
       <p>After graduation, I joined VAST, where I worked on <a class="hl" href="https://www.tripo3d.ai/" target="_blank" rel="noopener">Tripo AI</a> and co-created <a href="https://dl.acm.org/doi/10.1145/3681757.3697052" target="_blank" rel="noopener">Tripo Doodle</a>. Now at KMD, I'm exploring how design can bring art and technology together to create <span class="hl">meaningful interactive experiences</span>. I'm especially interested in <span class="hl">XR, human perception, and interactive projects</span> that combine hardware and software.</p>
@@ -181,7 +182,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop" id="education" data-stop="MJ03 EDUCATION">
     <div class="card">
-      <span class="led"><i>次は</i> MJ03 EDUCATION</span>
+      <span class="led"><i>ただいま</i> MJ03 EDUCATION</span>
       <h2>Education</h2>
       <div class="tl">
         <div class="tl-item">
@@ -203,7 +204,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop wide fit" id="experience" data-stop="MJ04 EXPERIENCE">
     <div class="card">
-      <span class="led"><i>次は</i> MJ04 EXPERIENCE</span>
+      <span class="led"><i>ただいま</i> MJ04 EXPERIENCE</span>
       <h2>Work experience</h2>
       <div class="tl">
         <div class="tl-item">
@@ -226,7 +227,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop wide fit" id="works" data-stop="MJ05 WORKS">
     <div class="card">
-      <span class="led"><i>次は</i> MJ05 WORKS</span>
+      <span class="led"><i>ただいま</i> MJ05 WORKS</span>
       <h2>Selected works, 2022–2025</h2>
       <p style="color:var(--muted);font-size:.92rem">Each work hangs as an ad poster in the train. Pick one, or tap a poster in the car.</p>
       <div id="detail" aria-live="polite" style="display:grid"></div>
@@ -241,7 +242,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop wide fit research" id="research" data-stop="MJ06 RESEARCH">
     <div class="card">
-      <span class="led"><i>次は</i> MJ06 RESEARCH</span>
+      <span class="led"><i>ただいま</i> MJ06 RESEARCH</span>
       <h2>Research directions</h2>
       <div style="display:grid;gap:10px">
         <span class="hint">SERVICE DESIGN</span>
@@ -261,7 +262,7 @@ footer{position:relative;z-index:1;text-align:center;padding:24px 16px 40px;font
 
   <section class="stop fit" id="skills" data-stop="MJ07 SKILLS">
     <div class="card">
-      <span class="led"><i>次は</i> MJ07 SKILLS</span>
+      <span class="led"><i>ただいま</i> MJ07 SKILLS</span>
       <h2>Skills</h2>
       <div class="skillgrp"><b>3D</b><div class="chips"><span class="chip">Blender</span><span class="chip">ZBrush</span><span class="chip">Substance Painter</span><span class="chip">Unity (C#)</span><span class="chip">Unreal Engine 5</span></div></div>
       <div class="skillgrp"><b>CREATIVE CODING</b><div class="chips"><span class="chip">Vibe coding</span><span class="chip">Processing</span><span class="chip">p5.js</span><span class="chip">Arduino</span><span class="chip">TouchDesigner</span><span class="chip">VCV Rack</span></div></div>
@@ -357,7 +358,7 @@ addEventListener('scroll',trackStop,{passive:true}); addEventListener('resize',t
 document.getElementById('copy').addEventListener('click',async e=>{
   const btn=e.currentTarget, el=document.getElementById('email');
   try{await navigator.clipboard.writeText(el.textContent);btn.textContent='Copied';}
-  catch(_){const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Selected · press Ctrl/Cmd+C';}
+  catch(_){const ta=document.createElement('textarea');ta.value=el.textContent;ta.style.cssText='position:fixed;opacity:0;-webkit-user-select:text;user-select:text';document.body.append(ta);ta.select();btn.textContent=document.execCommand('copy')?'Copied':'muqing.jia@keio.jp';ta.remove();}
   setTimeout(()=>btn.textContent='Copy email',2200);
 });
 
@@ -659,7 +660,7 @@ function initTrain(){
     g.clearRect(0,0,96,64);
     const eye=(cx,flip)=>{
       if(mode==='closed'){g.fillStyle='#2a1d22';g.fillRect(cx-8,37,16,2);g.fillRect(cx-9+(flip?14:0),36,4,2);return;}
-      if(mode==='happy'){g.fillStyle='#2a1d22';for(let i=0;i<6;i++){g.fillRect(cx-6+i,33+i,2,2);g.fillRect(cx-6+i,45-i,2,2);} if(flip){g.clearRect(cx-8,30,16,18);for(let i=0;i<6;i++){g.fillRect(cx+4-i,33+i,2,2);g.fillRect(cx+4-i,45-i,2,2);}} return;}
+      if(mode==='happy'){g.fillStyle='#2a1d22';for(let i=0;i<6;i++){const x=flip?cx-2-i:cx+i;g.fillRect(x,33+i,3,3);g.fillRect(x,45-i,3,3);} return;}
       g.fillStyle='#f3e6e8';g.fillRect(cx-10,33,20,14);                // sclera
       g.fillStyle='#3a2730';g.fillRect(cx-8,31,16,17);                 // iris
       g.fillStyle='#5e3f48';g.fillRect(cx-6,39,12,8);
@@ -703,7 +704,7 @@ function initTrain(){
   // star hair clips
   const starShape=new THREE.Shape();for(let i=0;i<8;i++){const r=i%2?0.008:0.024,a=i*Math.PI/4+Math.PI/2;const x=Math.cos(a)*r,y=Math.sin(a)*r;i?starShape.lineTo(x,y):starShape.moveTo(x,y);}
   const starG=new THREE.ExtrudeGeometry(starShape,{depth:0.006,bevelEnabled:false});
-  [[-0.17,0.035,0.17,1],[-0.195,-0.005,0.14,0.7]].forEach(([x,y,z,s])=>{const m=put(starG,B(0xfff4c4),x,y,z,head,false);m.scale.setScalar(s);m.rotation.y=-0.7;});
+  [[-0.17,0.035,0.17,1],[-0.213,-0.005,0.151,0.7]].forEach(([x,y,z,s])=>{const m=put(starG,B(0xfff4c4),x,y,z,head,false);m.scale.setScalar(s);m.rotation.y=-0.7;});
   // slouchy cat-ear beanie with folded cuff and soft outline
   const hat=new THREE.Group(); hat.position.set(0,0.07,-0.022); hat.rotation.set(-0.24,0,0.07); hat.scale.setScalar(1.06); head.add(hat);
   outline(put(new THREE.CylinderGeometry(0.25,0.246,0.06,22,1,true),L(0x7d6862,{side:THREE.DoubleSide}),0,0,0,hat),1.025);
