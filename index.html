@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793969784'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793969914'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -1098,7 +1098,104 @@ function initTrain(){
     for(const n of [-1,1]){aimT.set(n*.13,0,0).applyQuaternion(mac.quaternion).add(mac.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,holdMac);}
   }
   let xmasTick=null;
-  
+    /* ---------- Christmas: only in builds made with XMAS=1 ---------- */
+  {
+    const dm=new THREE.Object3D(), rnd=(a,b)=>a+Math.random()*(b-a);
+    const many=(geo,mat,ps,parent=car)=>{const m=new THREE.InstancedMesh(geo,mat,ps.length);ps.forEach((p,i)=>{dm.position.set(p[0],p[1],p[2]);dm.rotation.set(p[4]||0,p[5]||0,p[6]||0);dm.scale.setScalar(p[3]||1);dm.updateMatrix();m.setMatrixAt(i,dm.matrix);});m.frustumCulled=false;parent.add(m);return m;};
+    const glowA=B(0xffd27a), glowB=B(0xffe9b8), gold=Ph(0xd2a13c,{shininess:110,specular:0xfff0c0}), champagne=Ph(0xe6cf9a,{shininess:90,specular:0xffffff}),
+          pearl=Ph(0xfff8ea,{shininess:120,specular:0xffffff}), glassBall=new THREE.MeshPhongMaterial({color:0xfff4dc,transparent:true,opacity:.55,shininess:140,specular:0xffffff,fog:false}),
+          ribbon=new THREE.MeshLambertMaterial({color:0xecd7a6,emissive:0x5e4a24,transparent:true,opacity:.8,side:THREE.DoubleSide,depthWrite:false,fog:false}),
+          red=L(0xc22f3a), redDeep=L(0x8f1f2c), white=L(0xfff7ee), leaf=L(0x2c5a3e), leafLight=L(0x3e7450);
+
+    // the drink makes way for a pair of bells, tied with a red bow
+    drink.forEach(m=>m.visible=false);
+    const bellG=new THREE.LatheGeometry([[0,.092],[.016,.09],[.024,.074],[.028,.05],[.034,.026],[.05,.006],[.054,0]].map(p=>new THREE.Vector2(p[0],p[1])),10);
+    const bells=new THREE.Group(); bells.position.set(CHAR_X+.5,.49,WZ+.47); car.add(bells);
+    [[-.042,.2,1],[.046,-.16,.84]].forEach(([x,tz,k])=>{const b=new THREE.Group();b.position.x=x;b.rotation.z=tz;b.scale.setScalar(k);bells.add(b);
+      put(bellG,gold,0,0,0,b); put(S(.013,6,5),gold,0,.003,0,b,false); put(S(.009,6,5),L(0x8a6a24),0,.096,0,b,false);});
+    put(S(.016,6,5),red,0,.098,0,bells,false);
+    for(const s of [-1,1]){const l=put(S(.026,6,4),red,s*.026,.1,0,bells,false);l.scale.set(1.1,.6,.5);}
+
+    // a Santa hat perched on her beanie, with the tip drooping to one side
+    const santa=new THREE.Group(); santa.position.set(-.012,.23,.05); santa.rotation.set(-.2,0,.3); head.add(santa);
+    const brim=outline(put(new THREE.TorusGeometry(.172,.044,8,18),white,0,0,0,santa),1.02); brim.rotation.x=Math.PI/2; brim.scale.z=.9;
+    let seg=santa, r0=.168;
+    [[.15,.135,.14],[.13,.1,.42],[.12,.066,.6],[.11,.034,.62]].forEach(([h,r1,bend])=>{const g=new THREE.Group();g.rotation.z=bend;seg.add(g);put(C(r1,r0,h,12),red,0,h/2,0,g);const n=new THREE.Group();n.position.y=h;g.add(n);seg=n;r0=r1;});
+    outline(put(S(.056,10,8),white,0,.03,0,seg),1.03);
+
+    // string lights looped along both luggage racks
+    const lampA=[], lampB=[], wirePts=[];
+    for(const sz of [-1,1]){const z=sz*(-WZ-.37)+sz*.012, x0=SEAT_A+.06, x1=SEAT_B-.06, loop=.66, step=.1;let prev=null,n=0;
+      for(let x=x0;x<x1;x+=step,n++){const f=(x-x0)/loop%1, y=1.965-Math.sin(f*Math.PI)*.13, cur=new V3(x,y,z);
+        if(prev)wirePts.push(prev,cur); prev=cur; (n%2?lampA:lampB).push([x,y-.016,z]);}}
+    const lampG=S(.0125,6,4), litA=many(lampG,glowA,lampA), litB=many(lampG,glowB,lampB);
+    const wire=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(wirePts),new THREE.LineBasicMaterial({color:0x2c4a35})); wire.frustumCulled=false; car.add(wire);
+
+    // wreaths on the windows of both walls
+    const wreathAt=[]; for(const x of WIN) wreathAt.push([x+.42,WZ+.075,0]);
+    for(const x of WIN) wreathAt.push([-x-.42,-WZ-.075,Math.PI]);
+    const needle=new THREE.ConeGeometry(.034,.1,4), lf=[], lf2=[], berryR=[], berryG=[];
+    for(const [x,z,ry] of wreathAt){const c=Math.cos(ry),sn=Math.sin(ry),y0=1.62;
+      const at=(a,rr,dz)=>[x+c*Math.cos(a)*rr+sn*dz,y0+Math.sin(a)*rr,z+c*dz];
+      for(let i=0;i<46;i++){const a=i/46*6.283+rnd(-.08,.08),p=at(a,.145+rnd(-.038,.038),rnd(0,.03));(i%3?lf:lf2).push([...p,rnd(.8,1.15),rnd(-.6,.6),rnd(-.6,.6),a+rnd(-1.2,1.2)]);}
+      for(let i=0;i<14;i++){const a=rnd(0,6.283),p=at(a,.145+rnd(-.03,.03),.05);(i%2?berryR:berryG).push([...p,rnd(.8,1.2)]);}
+      for(const s of [-1,1]){const l=box(.09,.05,.012,red,x+c*s*.05,y0+.185,z+c*.05,car,false);l.rotation.z=-s*c*.35;}
+      box(.03,.034,.02,redDeep,x,y0+.185,z+c*.056,car,false); box(.012,.1,.008,red,x,y0+.26,z+c*.03,car,false);}
+    many(needle,leaf,lf); many(needle,leafLight,lf2); many(S(.015,6,4),red,berryR); many(S(.015,6,4),gold,berryG);
+
+    // ornaments hanging down the aisle
+    const hang=[], hangB=[], strPts=[];
+    for(let x=SEAT_A+1.2,i=0;x<SEAT_B-1;x+=1.15,i++) for(const z of [-.62,.62]){const y=1.96+((i%3)*.055);(i%2?hang:hangB).push([x,y,z]);strPts.push(new V3(x,y,z),new V3(x,2.38,z));}
+    many(S(.046,10,8),red,hang); many(S(.046,10,8),gold,hangB);
+    const str=new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(strPts),new THREE.LineBasicMaterial({color:0xb9ad98})); str.frustumCulled=false; car.add(str);
+
+    // presents
+    const gift=(x,z,w,h,d,col,rb)=>{const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=rnd(-.5,.5);car.add(g);box(w,h,d,L(col),0,h/2,0,g);
+      box(w+.006,h+.004,.03,L(rb),0,h/2,0,g,false);box(.03,h+.004,d+.006,L(rb),0,h/2,0,g,false);
+      for(const s of [-1,1]){const l=put(S(.034,6,4),L(rb),s*.03,h+.016,0,g,false);l.scale.set(1.1,.55,.6);}};
+
+    // the tree: dark layered branches, gold and glass baubles, pearl strands, champagne mesh ribbon tied in bows, and fairy lights all over
+    const tree=(px,pz,H,R)=>{const g=new THREE.Group();g.position.set(px,0,pz);car.add(g);
+      const radiusAt=f=>R*Math.pow(1-f,.92)+.012, onTree=(f,a,out=1)=>{const r=radiusAt(f)*out;return [Math.cos(a)*r,.14+f*(H-.14),Math.sin(a)*r];};
+      put(C(.05,.06,.3,8),L(0x4a3528),0,.15,0,g);
+      const tiers=8;for(let i=0;i<tiers;i++){const f=i/tiers,r=radiusAt(f)*1.02,h=(H-.14)*(1.5/tiers);
+        const cone=new THREE.ConeGeometry(r,h,11,2,true),p=cone.attributes.position;
+        for(let k=0;k<p.count;k++){const y=p.getY(k);if(y<h/2-.01){const q=1+(k%2?.13:-.09);p.setX(k,p.getX(k)*q);p.setZ(k,p.getZ(k)*q);p.setY(k,y+(k%3-1)*.022);}}
+        cone.computeVertexNormals();
+        const m=put(cone,i%2?L(0x264d38,{side:THREE.DoubleSide}):L(0x2f6045,{side:THREE.DoubleSide}),0,.14+f*(H-.14)+h/2,0,g);m.rotation.y=i*.9;}
+      const la=[],lb=[],pearls=[],gb=[],cb=[],gl=[];
+      for(let i=0;i<420;i++){const f=Math.pow(Math.random(),1.25)*.97;(i%2?la:lb).push(onTree(f,rnd(0,6.283),rnd(.84,1.1)));}
+      // dense sprays of needles over the layers
+      const sprayA=[],sprayB=[],nd=new THREE.ConeGeometry(.026,.15,4);
+      for(let i=0;i<1100;i++){const f=Math.pow(Math.random(),1.2)*.98,a=rnd(0,6.283),p=onTree(f,a,rnd(.72,1.05)),ang=a;(i%3?sprayA:sprayB).push([...p,rnd(.75,1.25)*(1-f*.35),0,-ang,-1.25+rnd(-.35,.35)]);}
+      many(nd,L(0x2a5a3e),sprayA,g);many(nd,L(0x3f7a52),sprayB,g);
+      for(let s=0;s<5;s++){const f0=.16+s*.15,a0=rnd(0,6.283),loops=3+(4-s)>>0,N=Math.round(70*(1-f0)+24);
+        for(let i=0;i<N;i++){const u=i/N,a=a0+u*6.283,sag=Math.abs(Math.sin(u*Math.PI*loops))*.075;pearls.push(onTree(f0-sag+.03,a,1.05));}}
+      for(let i=0;i<34;i++){const f=rnd(.05,.9),a=i*2.4+rnd(-.3,.3),k=[gold,champagne,glassBall][i%3],p=onTree(f,a,1.03),s=rnd(.8,1.25)*(1-f*.4);(k===gold?gb:k===champagne?cb:gl).push([...p,s]);}
+      const q=(H/1.8);many(S(.011*q,5,4),glowA,la,g);many(S(.011*q,5,4),glowB,lb,g);many(S(.0075*q,5,3),pearl,pearls,g);
+      many(S(.042*q,10,8),gold,gb,g);many(S(.042*q,10,8),champagne,cb,g);many(S(.046*q,10,8),glassBall,gl,g);
+      // ribbon bows: two open loops of mesh ribbon pinched at a knot
+      const loopG=new THREE.CylinderGeometry(.105,.105,.12,14,1,true);
+      // a band of ribbon draped from bow to bow
+      const swag=(f,a0,a1,sag)=>{const N=14,geo=new THREE.PlaneGeometry(1,1,N,1),p=geo.attributes.position,w=.1*q;
+        for(let i=0;i<=N;i++){const u=i/N,a=a0+(a1-a0)*u,c=onTree(f-Math.sin(u*Math.PI)*sag,a,1.1);p.setXYZ(i,c[0],c[1]+w/2,c[2]);p.setXYZ(i+N+1,c[0],c[1]-w/2,c[2]);}
+        geo.computeVertexNormals();const m=new THREE.Mesh(geo,ribbon);m.renderOrder=2;m.frustumCulled=false;g.add(m);};
+      const bow=(p,a,k)=>{const b=new THREE.Group();b.position.set(...p);b.rotation.y=-a+Math.PI/2;b.scale.setScalar(k);g.add(b);
+        for(const s of [-1,1]){const l=new THREE.Mesh(loopG,ribbon);l.rotation.x=Math.PI/2;l.position.x=s*.095;l.scale.set(1,1,.62);l.rotation.z=s*.12;l.renderOrder=2;b.add(l);
+          const tail=new THREE.Mesh(new THREE.PlaneGeometry(.05,.17),ribbon);tail.position.set(s*.03,-.1,0);tail.rotation.z=s*.28;tail.renderOrder=2;b.add(tail);}
+        const kn=put(S(.022,6,5),L(0xe6cf9a),0,0,.004,b,false);kn.scale.set(.9,1.3,.7);};
+      for(let t=0;t<4;t++){const f=.1+t*.21,n=6-t;for(let i=0;i<n;i++){const a=i/n*6.283+t*.6;bow(onTree(f,a,1.1),a,q*(1.2-t*.13));swag(f,a,a+6.283/n,.05);}}
+      bow([0,H+.015,0],Math.PI/2,q*2.1);
+      return g;};
+    tree(12.94,-.66,1.8,.47);
+    tree(-12.84,0,2.14,.62);
+    gift(12.62,-.1,.2,.15,.2,0xc22f3a,0xf0dca8); gift(13.1,-.08,.17,.12,.17,0xe6cf9a,0xc22f3a); gift(12.86,.05,.13,.1,.13,0x2f6045,0xf0dca8);
+    gift(-12.3,-.55,.24,.18,.24,0xc22f3a,0xf0dca8); gift(-12.2,.5,.22,.14,.22,0x2f6045,0xf0dca8); gift(-12.42,.08,.16,.11,.16,0xe6cf9a,0xc22f3a); gift(-11.92,-.3,.15,.12,.15,0xd2a13c,0x8f1f2c);
+    const warm=new THREE.PointLight(0xffc878,.55,2.6); warm.position.set(12.6,1,-.4); car.add(warm);
+
+    xmasTick=t=>{const a=.72+.28*Math.sin(t*2.1),b=.72+.28*Math.sin(t*2.1+2.4);glowA.color.setRGB(a,.82*a,.48*a);glowB.color.setRGB(b,.93*b,.72*b);};
+  }
+
   const tP2=new V3();
   function frame(now){
     const dt=Math.min((now-last)/1000,0.05);last=now;t+=dt;const m=reduce?0.25:1;
