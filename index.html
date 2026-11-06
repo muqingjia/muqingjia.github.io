@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793969914'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793971518'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -1116,12 +1116,13 @@ function initTrain(){
     put(S(.016,6,5),red,0,.098,0,bells,false);
     for(const s of [-1,1]){const l=put(S(.026,6,4),red,s*.026,.1,0,bells,false);l.scale.set(1.1,.6,.5);}
 
-    // a Santa hat perched on her beanie, with the tip drooping to one side
-    const santa=new THREE.Group(); santa.position.set(-.012,.23,.05); santa.rotation.set(-.2,0,.3); head.add(santa);
-    const brim=outline(put(new THREE.TorusGeometry(.172,.044,8,18),white,0,0,0,santa),1.02); brim.rotation.x=Math.PI/2; brim.scale.z=.9;
-    let seg=santa, r0=.168;
-    [[.15,.135,.14],[.13,.1,.42],[.12,.066,.6],[.11,.034,.62]].forEach(([h,r1,bend])=>{const g=new THREE.Group();g.rotation.z=bend;seg.add(g);put(C(r1,r0,h,12),red,0,h/2,0,g);const n=new THREE.Group();n.position.y=h;g.add(n);seg=n;r0=r1;});
-    outline(put(S(.056,10,8),white,0,.03,0,seg),1.03);
+    // the beanie comes off for a Santa hat, sat in the same place with the tip drooping to one side
+    hat.visible=false;
+    const santa=new THREE.Group(); santa.position.copy(hat.position); santa.rotation.set(hat.rotation.x,0,.1); head.add(santa);
+    const brim=outline(put(new THREE.TorusGeometry(.252,.062,10,24),white,0,.012,-.012,santa),1.02); brim.rotation.x=Math.PI/2; brim.scale.set(1.04,1.06,.95);
+    let seg=santa, r0=.25;
+    [[.17,.215,.1],[.16,.16,.34],[.15,.105,.56],[.13,.058,.68],[.1,.024,.6]].forEach(([h,r1,bend],i)=>{const g=new THREE.Group();g.rotation.z=bend;if(!i)g.position.set(0,.03,-.016);seg.add(g);outline(put(C(r1,r0,h,16),red,0,h/2,0,g),1.02);const n=new THREE.Group();n.position.y=h;g.add(n);seg=n;r0=r1;});
+    outline(put(S(.068,10,8),white,0,.04,0,seg),1.03);
 
     // string lights looped along both luggage racks
     const lampA=[], lampB=[], wirePts=[];
