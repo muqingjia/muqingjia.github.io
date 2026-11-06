@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793971518'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793972913'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -1120,9 +1120,15 @@ function initTrain(){
     hat.visible=false;
     const santa=new THREE.Group(); santa.position.copy(hat.position); santa.rotation.set(hat.rotation.x,0,.1); head.add(santa);
     const brim=outline(put(new THREE.TorusGeometry(.252,.062,10,24),white,0,.012,-.012,santa),1.02); brim.rotation.x=Math.PI/2; brim.scale.set(1.04,1.06,.95);
-    let seg=santa, r0=.25;
-    [[.17,.215,.1],[.16,.16,.34],[.15,.105,.56],[.13,.058,.68],[.1,.024,.6]].forEach(([h,r1,bend],i)=>{const g=new THREE.Group();g.rotation.z=bend;if(!i)g.position.set(0,.03,-.016);seg.add(g);outline(put(C(r1,r0,h,16),red,0,h/2,0,g),1.02);const n=new THREE.Group();n.position.y=h;g.add(n);seg=n;r0=r1;});
-    outline(put(S(.068,10,8),white,0,.04,0,seg),1.03);
+    // one smooth skin from the brim to the tip: rings swept along a curve, narrowing as they go
+    const spine=new THREE.CatmullRomCurve3([[0,.03],[-.006,.16],[-.04,.3],[-.13,.405],[-.25,.42],[-.345,.345]].map(([x,y])=>new V3(x,y,-.016))), RINGS=36, SIDES=18,
+          frames=spine.computeFrenetFrames(RINGS,false), hatV=[], hatI=[], pt=new V3();
+    for(let i=0;i<=RINGS;i++){const u=i/RINGS, r=.25*Math.pow(1-u,.82)+.016;spine.getPointAt(u,pt);
+      for(let k=0;k<SIDES;k++){const a=k/SIDES*Math.PI*2,c=Math.cos(a)*r,n=Math.sin(a)*r,N=frames.normals[i],Bn=frames.binormals[i];hatV.push(pt.x+N.x*c+Bn.x*n,pt.y+N.y*c+Bn.y*n,pt.z+N.z*c+Bn.z*n);}}
+    for(let i=0;i<RINGS;i++)for(let k=0;k<SIDES;k++){const a=i*SIDES+k,b=i*SIDES+(k+1)%SIDES,c=a+SIDES,d=b+SIDES;hatI.push(a,b,c,b,d,c);}
+    const hatGeo=new THREE.BufferGeometry();hatGeo.setAttribute('position',new THREE.Float32BufferAttribute(hatV,3));hatGeo.setIndex(hatI);hatGeo.computeVertexNormals();
+    outline(put(hatGeo,red,0,0,0,santa),1.012);
+    spine.getPointAt(1,pt); outline(put(S(.068,10,8),white,pt.x-.012,pt.y-.024,pt.z,santa),1.03);
 
     // string lights looped along both luggage racks
     const lampA=[], lampB=[], wirePts=[];
