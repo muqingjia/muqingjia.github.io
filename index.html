@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793795908'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1793969784'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -600,6 +600,9 @@ function initTrain(){
     for(let i=0;i<n;i++){const x=SEAT_A+0.235+i*0.47;
       const c=box(0.455,0.11,0.52,seatM,x,0.435,WZ+0.33,g);
       const b=box(0.455,0.46,0.09,seatBackM,x,0.75,WZ+0.1,g); b.rotation.x=-0.1;}
+    { // a narrower last cushion closes the gap up to the partition
+      const e=SEAT_A+n*0.47, w=SEAT_B-e, x=e+w/2-0.008;
+      box(w,0.11,0.52,seatM,x,0.435,WZ+0.33,g); box(w,0.46,0.09,seatBackM,x,0.75,WZ+0.1,g).rotation.x=-0.1;}
     box(SEAT_B-SEAT_A,0.37,0.44,skirtM,(SEAT_A+SEAT_B)/2,0.185,WZ+0.3,g);
     box(SEAT_B-SEAT_A,0.02,0.02,metalM,(SEAT_A+SEAT_B)/2,0.37,WZ+0.53,g,false);
     // seat-end partitions with curved grab bar
@@ -785,9 +788,9 @@ function initTrain(){
     bkSpine=box(0.006,PH+0.01,0.056,coverM,-0.003,0,0.026,bookG);
   }
   // drink
-  put(C(0.04,0.032,0.11,8),new THREE.MeshLambertMaterial({color:0xffbccb,transparent:true,opacity:.9,fog:false}),CHAR_X+0.54,0.545,WZ+0.47,car);
-  put(new THREE.SphereGeometry(0.04,8,4,0,Math.PI*2,0,Math.PI/2),L(0xffffff),CHAR_X+0.54,0.6,WZ+0.47,car);
-  put(C(0.006,0.006,0.12,4),L(0x7c74ea),CHAR_X+0.55,0.65,WZ+0.47,car).rotation.z=-0.2;
+  const drink=[put(C(0.04,0.032,0.11,8),new THREE.MeshLambertMaterial({color:0xffbccb,transparent:true,opacity:.9,fog:false}),CHAR_X+0.54,0.545,WZ+0.47,car),
+    put(new THREE.SphereGeometry(0.04,8,4,0,Math.PI*2,0,Math.PI/2),L(0xffffff),CHAR_X+0.54,0.6,WZ+0.47,car),
+    put(C(0.006,0.006,0.12,4),L(0x7c74ea),CHAR_X+0.55,0.65,WZ+0.47,car)]; drink[2].rotation.z=-0.2;
 
   // head
   const head=new THREE.Group(); head.position.set(0,0.565,0.015); upper.add(head);
@@ -990,7 +993,7 @@ function initTrain(){
     p.alx+=(0-p.alx)*w;p.aly+=(0-p.aly)*w;p.alz+=(-.66-p.alz)*w;   // right arm reaches down to the seat
     p.twist=-.16*w;p.lean=.05*w;return p;}
   // the book is the other way round: reached for on her left, read with her head down
-  const BOOK_SEAT=new V3(CHAR_X+.25,.512,WZ+.48), BOOK_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,-.3)),
+  const BOOK_SEAT=new V3(CHAR_X+.25,.494,WZ+.48), BOOK_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,-.3)),
         BOOK_HOLD=new V3(0,.17,.27), BOOK_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.21,0,Math.PI)), bookP=new V3();
   // her reach for the book: lean and look (0-.3), lift to the lap (.3-.72), then the cover opens (.72-1)
   const bookLook=c=>Math.sin(Math.min(c/.72,1)*Math.PI);
@@ -1094,6 +1097,8 @@ function initTrain(){
     const holdMac=macC<=.5?ease01(Math.min(macC*8,1)):1-ease01(Math.min((macC-.5)*2.5,1));
     for(const n of [-1,1]){aimT.set(n*.13,0,0).applyQuaternion(mac.quaternion).add(mac.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,holdMac);}
   }
+  let xmasTick=null;
+  
   const tP2=new V3();
   function frame(now){
     const dt=Math.min((now-last)/1000,0.05);last=now;t+=dt;const m=reduce?0.25:1;
@@ -1137,6 +1142,7 @@ function initTrain(){
     pig.rotation.y=blendAngle(pig.rotation.y,hopping?Math.sign(pigE-pigS||pigD)*HALF:-1,Math.min(dt*8,1));
     if(hopping&&t<peckAt)peckAt=Math.max(peckAt,t+.8);
     if(t>peckAt){const k=(t-peckAt)/0.4;ph.rotation.x=Math.sin(Math.min(k,1)*Math.PI)*0.85;if(k>1){ph.rotation.x=0;peckAt=t+1.4+Math.random()*3;}}
+    if(xmasTick)xmasTick(t);
     posters.forEach((p,i)=>{const on=activeId==='works'&&i===current;const s=on?1.06:1;p.frame.scale.x+=(s-p.frame.scale.x)*Math.min(dt*6,1);p.frame.scale.y=p.frame.scale.x;p.frame.material.color.set(on?0x7c74ea:0x8d8a90);});
     target();const k=Math.min(dt*(reduce?8:2.2)*(1+camP.distanceTo(tP)/3),1);camP.lerp(tP,k);camL.lerp(tL,k);postU.focus.value+=(tF-postU.focus.value)*k;
     camera.position.copy(camP);camera.position.y+=Math.sin(t*8.5)*0.0015*m;camera.lookAt(camL);
