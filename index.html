@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1794013440'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1794013558'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -1119,32 +1119,18 @@ function initTrain(){
     // the beanie comes off for a Santa hat, sat in the same place with the tip drooping to one side
     hat.visible=false;
     const santa=new THREE.Group(); santa.position.copy(hat.position); santa.rotation.set(hat.rotation.x,0,.1); head.add(santa);
-    // faceted version: a few hand-placed rings, no smoothing, so every face and fold catches the light on its own
-    const lowHat=()=>{
-      const facet=g=>{const f=g.index?g.toNonIndexed():g;f.computeVertexNormals();return f;};
-      const band=facet(new THREE.LatheGeometry([[.222,.052],[.222,-.04],[.274,-.04],[.262,.052],[.222,.052]].map(p=>new THREE.Vector2(p[0],p[1])),9,.3));
-      outline(put(band,white,0,.008,-.012,santa),1.015);
-      const R=[[0,.03,.246],[-.012,.125,.226],[-.052,.222,.168],[-.13,.276,.106],[-.212,.25,.062],[-.246,.165,.034]], SIDES=8, V=[], I=[];
+    // angular outline, soft surface: few rings for the folded shape, smooth normals so the front reads as one piece
+    {
+      const facet=g=>{const f=g.toNonIndexed();f.computeVertexNormals();return f;};
+      outline(put(new THREE.CylinderGeometry(.262,.274,.092,28),white,0,.014,-.012,santa),1.015); // caps keep the band's edges square
+      const R=[[0,.03,.246],[-.012,.125,.226],[-.052,.222,.168],[-.13,.276,.106],[-.212,.25,.062],[-.246,.165,.034]], SIDES=16, V=[], I=[];
       R.forEach(([x,y,r],i)=>{const a=R[Math.max(i-1,0)], b=R[Math.min(i+1,R.length-1)], t=new V3(b[0]-a[0],b[1]-a[1],0).normalize();
         for(let k=0;k<SIDES;k++){const q=(k+.5)/SIDES*Math.PI*2,c=Math.cos(q)*r,n=Math.sin(q)*r;V.push(x-t.y*c,y+t.x*c,-.016+n);}});
       for(let i=0;i<R.length-1;i++)for(let k=0;k<SIDES;k++){const a=i*SIDES+k,b=i*SIDES+(k+1)%SIDES,c=a+SIDES,d=b+SIDES;I.push(a,b,c,b,d,c);}
-      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(V,3));g.setIndex(I);
-      outline(put(facet(g),red,0,0,0,santa),1.012);
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(V,3));g.setIndex(I);g.computeVertexNormals();
+      outline(put(g,red,0,0,0,santa),1.012);
       const cuff=outline(put(facet(new THREE.CylinderGeometry(.05,.066,.072,6)),white,-.25,.135,-.016,santa),1.03); cuff.rotation.z=-.3;
-    };
-    const roundHat=()=>{
-    const brim=outline(put(new THREE.TorusGeometry(.245,.046,10,24),white,0,.012,-.012,santa),1.02); brim.rotation.x=Math.PI/2; brim.scale.set(1.04,1.06,.95);
-    // one smooth skin from the brim to the tip: rings swept along a curve, narrowing as they go
-    const spine=new THREE.CatmullRomCurve3([[0,.03],[-.004,.11],[-.028,.205],[-.09,.275],[-.17,.288],[-.235,.235]].map(([x,y])=>new V3(x,y,-.016))), RINGS=36, SIDES=18,
-          frames=spine.computeFrenetFrames(RINGS,false), hatV=[], hatI=[], pt=new V3();
-    for(let i=0;i<=RINGS;i++){const u=i/RINGS, r=.242*Math.pow(1-u,.82)+.014;spine.getPointAt(u,pt);
-      for(let k=0;k<SIDES;k++){const a=k/SIDES*Math.PI*2,c=Math.cos(a)*r,n=Math.sin(a)*r,N=frames.normals[i],Bn=frames.binormals[i];hatV.push(pt.x+N.x*c+Bn.x*n,pt.y+N.y*c+Bn.y*n,pt.z+N.z*c+Bn.z*n);}}
-    for(let i=0;i<RINGS;i++)for(let k=0;k<SIDES;k++){const a=i*SIDES+k,b=i*SIDES+(k+1)%SIDES,c=a+SIDES,d=b+SIDES;hatI.push(a,b,c,b,d,c);}
-    const hatGeo=new THREE.BufferGeometry();hatGeo.setAttribute('position',new THREE.Float32BufferAttribute(hatV,3));hatGeo.setIndex(hatI);hatGeo.computeVertexNormals();
-    outline(put(hatGeo,red,0,0,0,santa),1.012);
-    spine.getPointAt(1,pt); outline(put(S(.05,10,8),white,pt.x-.012,pt.y-.024,pt.z,santa),1.03);
-    };
-    (location.search.includes('hat=round')?roundHat:lowHat)();
+    }
 
     // string lights looped along both luggage racks
     const lampA=[], lampB=[], wirePts=[];
