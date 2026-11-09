@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1794193486'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1794194297'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -832,7 +832,7 @@ function initTrain(){
   box(0.036,0.007,0.007,blackM,0,eyeY+0.008,eyeZ+0.008,head,false);
   // hair
   const cap=outline(put(new THREE.SphereGeometry(0.227,16,8,0,Math.PI*2,0,Math.PI*0.56),hairM,0,0.008,-0.006,head),1.03); cap.scale.set(1.06,0.98,1.02); cap.rotation.x=-0.42;
-  put(new THREE.CylinderGeometry(0.242,0.302,0.46,18,1,true,0.82,Math.PI*2-1.64),hairDS,0,-0.16,-0.012,head);
+  put(new THREE.CylinderGeometry(0.242,0.302,0.46,18,1,true,1.22,Math.PI*2-2.44),hairDS,0,-0.16,-0.012,head);   // open wide at the front so swinging arms pass in front of the hair, not through it
   // fill the temples/sideburns so nothing looks bald
   for(const st of [0.72,-1.17]) put(new THREE.CylinderGeometry(0.236,0.262,0.29,5,1,true,st,0.5),hairDS,0,-0.06,0,head);
   const strand=(x,y,z,len,ry,rx,rz,w=0.024,d=0.45)=>{const m=put(C(w,w*0.28,len,4),hairM,x,y,z,head);m.rotation.set(rx,ry,rz);m.scale.z=d;return m;};
@@ -982,16 +982,18 @@ function initTrain(){
     {p:POSE.rest(),r:k.p}];};
   // the Switch lives on its own: held in her hands, or set down on the seat at her right when she gets up
   const GRIP_POS=new V3(0,.12,.25), GRIP_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.4,0,Math.PI)),
-        SEAT_POS=new V3(CHAR_X-.3,.51,WZ+.52), SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,.35+Math.PI)),
-        qA=new THREE.Quaternion(), qU=new THREE.Quaternion(), heldP=new V3(), HANDS_S=1.25, BOOK_S=3.6, FLIP_T=5.6, FLIP_S=1.8;
+        SEAT_POS=new V3(CHAR_X-.2,.51,WZ+.55), SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,.35+Math.PI)),
+        qA=new THREE.Quaternion(), qU=new THREE.Quaternion(), heldP=new V3(), swP=new V3(), HANDS_S=1.8, BOOK_S=3.6, FLIP_T=5.6, FLIP_S=1.8;
   const ease01=x=>x*x*(3-2*x), smooth=x=>x*x*x*(x*(6*x-15)+10), aimQ=new THREE.Quaternion(), poseQ=new THREE.Quaternion(), DOWN=new V3(0,-1,0), aimD=new V3(), aimT=new V3();
   // turns an arm so the hand really reaches a point in the car, w blends it in
   function aimArm(s,x,y,z,w){if(w<=0)return;const a=arms[s].g;aimT.set(x,y,z).sub(ada.position).applyQuaternion(qA.clone().invert()).applyQuaternion(qU.clone().invert());
     aimD.set(aimT.x-s*.15,aimT.y-.28,aimT.z).normalize();aimQ.setFromUnitVectors(DOWN,aimD);poseQ.copy(a.quaternion).slerp(aimQ,w);a.quaternion.copy(poseQ);}
-  function handsPose(c){const grip=POSE.sit(), rest=POSE.rest(), w=Math.sin(c*Math.PI), p={...rest};
-    for(const n of ['alx','aly','alz','arx','ary','arz'])p[n]=grip[n]+(rest[n]-grip[n])*c;
-    p.alx+=(0-p.alx)*w;p.aly+=(0-p.aly)*w;p.alz+=(-.66-p.alz)*w;   // right arm reaches down to the seat
-    p.twist=-.16*w;p.lean=.05*w;return p;}
+  // putting the Switch down, c 0 to 1 (played backwards to pick it up): the left hand lets go, the right carries it
+  // to the seat and sets it flat, then lifts off; the body leans and tips towards the seat while she reaches
+  const clamp01=x=>Math.min(Math.max(x,0),1), swMove=c=>smooth(clamp01((c-.14)/.58));
+  function handsPose(c){const grip=POSE.sit(), rest=POSE.rest(), a=smooth(clamp01(c/.4)), w=smooth(clamp01((c-.06)/.5))*(1-smooth(clamp01((c-.78)/.22))), p={...rest};
+    for(const n of ['alx','aly','alz','arx','ary','arz'])p[n]=grip[n]+(rest[n]-grip[n])*a;
+    p.twist=-.24*w;p.lean=.15*w;p.side=.16*w;return p;}
   // the book is the other way round: reached for on her left, read with her head down
   const BOOK_SEAT=new V3(CHAR_X+.25,.494,WZ+.48), BOOK_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-HALF,0,-.3)),
         BOOK_HOLD=new V3(0,.17,.27), BOOK_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(-2.21,0,Math.PI)), bookP=new V3();
@@ -1015,8 +1017,15 @@ function initTrain(){
   function placeSwitch(c){
     qA.setFromEuler(ada.rotation);qU.setFromEuler(upper.rotation);
     heldP.copy(GRIP_POS).applyQuaternion(qU).applyQuaternion(qA).add(ada.position);
-    const e=ease01(Math.min(c/.75,1));gameG.position.lerpVectors(heldP,SEAT_POS,e);gameG.position.y+=Math.sin(e*Math.PI)*.05;
+    const e=swMove(c);gameG.position.lerpVectors(heldP,SEAT_POS,e);gameG.position.y+=Math.sin(e*Math.PI)*.07;
     gameG.quaternion.copy(qA).multiply(qU).multiply(GRIP_Q).slerp(SEAT_Q,e);}
+  // hands stay on the Switch while it moves: each grip is a point on the console the arm aims at
+  function holdSwitch(c){if(c<=0)return;const e=swMove(c),on=smooth(clamp01(c/.05));
+    for(const s of [-1,1]){gameG.updateMatrixWorld(true);const w=on*(s<0?1-smooth(clamp01((c-.76)/.22)):1-smooth(clamp01((c-.04)/.22)));if(w<=0)continue;
+      swP.set(s<0?.088-.04*e:-.088,0,.012*e);gameG.localToWorld(swP);aimArm(s,swP.x,swP.y,swP.z,w);
+      // in the air the console simply goes where her right hand is, so the two never drift apart
+      if(s<0&&e>0&&e<1){const g=arms[-1].g;g.updateMatrixWorld(true);aimT.set(0,-.287,0);g.localToWorld(aimT);aimT.sub(swP);const d=aimT.length();
+        if(d>.018)gameG.position.addScaledVector(aimT,(1-.018/d)*Math.sin(e*Math.PI));}}}
   // the laptop has three places: 0 closed on the seat, .5 hugged closed while she carries it, 1 open on her lap
   const MAC_SEAT=new V3(8.71,.498,1.12), MAC_SEAT_Q=new THREE.Quaternion().setFromEuler(new THREE.Euler(0,.5,0)),
         MAC_HELD=new V3(0,.2,.27), MAC_LAP=new V3(0,.068,.29), PICK_MAC=[8.71,.74], CARRY=armPose(-1.15,0,.22,-1.15,0,-.22), macP=new V3(), macQ=new THREE.Quaternion();
@@ -1089,7 +1098,7 @@ function initTrain(){
     ada.position.set(root.x,root.y+hop+lift,root.z); ada.rotation.y=ry;
     legs[-1].hip.rotation.x=pose.hipL; legs[1].hip.rotation.x=pose.hipR; legs[-1].knee.rotation.x=pose.kneeL; legs[1].knee.rotation.x=pose.kneeR;
     arms[-1].g.rotation.set(pose.alx,pose.aly,pose.alz); arms[1].g.rotation.set(pose.arx,pose.ary,pose.arz);
-    lap.visible=pose.lap>.5; lap.scale.z=Math.max(pose.lap,.01); placeSwitch(stow); placeMac(macC); placeBook(read);
+    lap.visible=pose.lap>.5; lap.scale.z=Math.max(pose.lap,.01); placeSwitch(stow); holdSwitch(stow); placeMac(macC); placeBook(read);
     if(read>0){const o=smooth(Math.max((read-.72)/.28,0));
       aimArm(1,bookG.position.x+.05,bookG.position.y,bookG.position.z,smooth(Math.min(read/.3,1)));
       for(const n of [-1,1]){aimT.set(n>0?-.085*o:.09,-.02,0).applyQuaternion(bookG.quaternion).add(bookG.position);const tx=aimT.x,ty=aimT.y,tz=aimT.z;aimArm(n,tx,ty,tz,n>0?smooth(Math.min(Math.max((read-.45)/.3,0),1)):smooth(Math.min(Math.max((read-.6)/.25,0),1)));}
