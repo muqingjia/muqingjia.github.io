@@ -12,7 +12,7 @@
 <meta http-equiv="Expires" content="0">
 <script>
 // in-app browsers hold on to old pages: if this copy is out of date, load the latest one
-fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1794013558'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
+fetch('/version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text()).then(v=>{v=v.trim();if(/^\d+$/.test(v)&&v!=='1794193486'&&!location.search.includes('v='+v))location.replace(location.pathname+'?v='+v+location.hash);}).catch(()=>{});
 </script>
 <link rel="icon" href="/favicon.ico?v=2" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=2">
@@ -793,7 +793,7 @@ function initTrain(){
     put(C(0.006,0.006,0.12,4),L(0x7c74ea),CHAR_X+0.55,0.65,WZ+0.47,car)]; drink[2].rotation.z=-0.2;
 
   // head
-  const head=new THREE.Group(); head.position.set(0,0.565,0.015); upper.add(head);
+  const head=new THREE.Group(); head.position.set(0,0.565,0.015); upper.add(head); head.scale.set(0.87,0.97,0.94); // narrower and a touch smaller, less chibi
   const skull=new THREE.Group(); skull.scale.set(1.06,0.97,1); head.add(skull);
   put(S(0.21,14,10),skinM,0,0,0,skull);
   // pixel-art face decal on a sphere patch (u: left→right, v: top→bottom)
